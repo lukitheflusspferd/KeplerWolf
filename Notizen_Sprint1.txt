@@ -1,0 +1,37 @@
+Zum Kanban: 
+Client Server hin und her pingen
+1. Server Client Erstellen
+beides Multisocket
+Serverside dictionary
+
+Spielerattribute erstellen
+Implementation Klasse Spieler, 2 Datenbanken, wie Rollen gespeichert werden
+
+Eigenschaften Spieler
+
+Verlauf Spiel: 
+Loop aus 
+
+nach jedem Todesreveal Rollenconfirmation
+
+Einschlafen
+rollenabfolge
+aufwachen
+wenn bürgermeister false dann wahl
+abstimmung erhängen
+
+
+Rollen zu implementieren: 
+
+Jon:
+Werwolf
+Dorfbewohner
+Hexe
+
+Mörtn:
++Armor
++Seher
++Blinzelmädchen
++Jäger
++Baum
++Alpha
