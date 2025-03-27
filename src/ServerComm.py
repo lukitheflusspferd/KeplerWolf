@@ -3,7 +3,7 @@ import selectors
 import socket
 import time
 
-from ServerData import computePing
+from ServerData import computePing, resolveIPtoPlayerID
 
 # siehe https://openbook.rheinwerk-verlag.de/python/34_001.html
 
@@ -29,7 +29,6 @@ def accept(selector, sock):
     """
     connection, addr = sock.accept()
     connection.setblocking(False)
-    print(connection)
     selector.register(connection, selectors.EVENT_READ, ping)
 
 def message_legacy(selector, client):
@@ -54,7 +53,7 @@ def ping(selector, client):
     ip = client.getpeername()[0]
     # Wenn die Nachricht einen Inhalt hat
     if message:
-        print("\nGot Ping from IP [{}] with the following data: \n {}".format(ip, message.decode()))
+        print("\nGot Ping from player with ID [{}] at IP [{}] with the following data: \n {}".format(resolveIPtoPlayerID(ip), ip, message.decode()))
         pingData = json.loads(message)
         
         answer = computePing(ip, pingData)
