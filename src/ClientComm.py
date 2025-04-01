@@ -5,6 +5,7 @@ import socket
 from ClientData import computePing
 
 ip = "10.4.14.26"
+# ip = "192.168.2.160"
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, 65432))

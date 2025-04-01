@@ -29,24 +29,26 @@ def Voting(players, type):
     mailbox.append(Vote)
 
 def Nominate(players, type):
-    if nominateactive:
-        if type == 'mayor': print('Nominiere einen Spieler zum Bürgermeister:')
-        else: print('Klage einen Spieler an')
-        namesavailable = 'Spieler verfügbar: '
-        j = 0
+    global mailbox
+    if type == 'mayor': print('Nominiere einen Spieler zum Bürgermeister:')
+    else: print('Klage einen Spieler an')
+    namesavailable = 'Spieler verfügbar: '
+    j = 0
+    for i in players:
+        if j == 0:
+            namesavailable +=  (i)
+        else: 
+            namesavailable +=  (', ' + i)
+        j += 1 
+    print(namesavailable)
+    notyetnominated = True
+    while notyetnominated:
+        Vote = input('Hier den Namen eingeben: ')
         for i in players:
-            if j == 0:
-                namesavailable +=  (i)
-            else: 
-                namesavailable +=  (', ' + i)
-            j += 1 
-        print(namesavailable)
-        notyetnominated = True
-        while notyetvoted:
-            Vote = input('Hier den Namen eingeben: ')
-            for i in players:
-                if Vote == i: notyetvoted = False
-            if notyetnominated: print('Name nicht erkannt')
-        mailbox.append(Vote)
+            if Vote == i: notyetnominated = False
+        if notyetnominated: print('Name nicht erkannt')
+    mailbox.append(Vote)
 
-        
+def displayresults(player, type):
+    if type == 'mayor': print(player + ' wurde zum Bürgermeister gewählt.')
+    elif type == 'werewolf': print(player + 'wurde von den Werwölfen getötet.')    

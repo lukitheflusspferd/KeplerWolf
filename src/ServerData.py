@@ -3,26 +3,28 @@ from Roles2 import *
 
 ipToPlayerID = dict()
 
-ipToPlayerID["10.4.14.25"] = "p1"
+ipToPlayerID["10.4.14.25"] = "luki"
 ipToPlayerID["10.4.14.24"] = "p2"
 ipToPlayerID["10.4.14.23"] = "p3"
+# ipToPlayerID["192.168.2.160"] = "luki"
 
 def resolveIPtoPlayerID(ip : str) -> str:
     return ipToPlayerID.get(ip)
 
 players = {
-    "p1" : Player("Spieler 1", villager()),
-    "p2" : Player("Spieler 2", villager()),
-    "p3" : Player("Spieler 3", villager()),
+    # "p1" : Player("Spieler 1", "Villager()"),
+    "p2" : Player("Spieler 2", "Villager()"),
+    "p3" : Player("Spieler 3", "Villager()"),
+    "luki" : Player("Lukas", "Witch(True)"),
 }
 
 mailbox = {
     player : [] for player in players
 }
 
-mailbox["p2"].append( {
+mailbox["luki"].append( {
      "type" : "initPing",
-     "data" : repr(players["p2"])
+     "data" : repr(players["luki"])
 } )
 
 # ServerState = "PrePlay"

@@ -18,9 +18,9 @@ class Role():
         self.__group = group
         self.__hp_start = hp_start
 
-    def __repr__(self):
-        return (f"Role(name='{self.__name}', description='{self.__description}', "
-                f"group='{self.__group}', hp_start={self.__hp_start})")
+    # def __repr__(self):
+    #     return (f'(name="{self.__name}", description="{self.__description}", '
+    #             f'group="{self.__group}", hp_start={self.__hp_start})')
     
     def getname(self):
         return self.__name
