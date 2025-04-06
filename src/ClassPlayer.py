@@ -1,5 +1,4 @@
 from Roles import *
-from Roles2 import *
 
 class Player():
     def __init__(self, name, role = "Villager()", isdead=False, isvictim=False, ismayor=False, isawake=False, playervotesleft=0, votesforplayer=0, currenthp=1):
@@ -86,7 +85,7 @@ class Player():
     def getvotesforplayer(self):
         return self.__votesforplayer
     
-#'''
+'''
 
 # Test:
 p1 = Player("Alice", "Witch()")
@@ -98,4 +97,4 @@ p2 = eval(repr_string)
 print(p2)  # Sollte das gleiche anzeigen, aber nur, wenn für die Klasse kein __str__ definiert ist, da dann __repr__ benutzt wird.
 print("\n------------\n")
 
-#'''
+'''

@@ -5,8 +5,15 @@ from random import randint
 
 
 class Armor(Role):
-    def __init__(self):
+    def __init__(self, hasCoupled = False, awakens = True):
         super().__init__('Armor', 'Ja kann Leute verlieben', grouptypes.villager, 1)
+        self.__hasCoupled = hasCoupled
+        self.__awakens = awakens
+
+    def __repr__(self):
+        return f"Armor(hasCoupled={self.__hasCoupled}, awakens={self.__awakens})"
+    
+    
 """
     def setlovers(target1, target2):   
         target1.setgroup(grouptypes.lovers)
@@ -16,6 +23,9 @@ class Armor(Role):
 class Seer(Role):
     def __init__(self):
         super().__init__('Seher', 'Kann Rollen anschauen', grouptypes.villager, 1)
+
+    def __repr__(self):
+        return "Seer()"
 """
     def lookatrole(target):
         return target.getrole()
@@ -24,6 +34,9 @@ class Seer(Role):
 class Littlegirl(Role):
     def __init__(self):
         super().__init__('Blinzelmädchen', 'Kann in der Nacht eine Rolle herausfinden, aber mit einem Risiko', grouptypes.villager, 1)
+
+    def __repr__(self):
+        return "Littlegirl()"
 """
     def peek(target1, target2):
         chance = 0.2
@@ -37,6 +50,9 @@ class Littlegirl(Role):
 class Hunter(Role):
     def __init__(self):
         super().__init__('Jäger', 'Nimmt eine Person in den Tod mit', grouptypes.villager, 1)
+        
+    def __repr__(self):
+        return "Hunter()"
 """
     def ondeath():
         if Player.getisdead():
@@ -47,6 +63,9 @@ class Hunter(Role):
 class Tree(Role): 
     def __init__(self):
         super().__init__('Baum', 'Hat 2 HP, wenn er stirbt werden alle Rollen deaktiviert', grouptypes.villager, 2)
+
+    def __repr__(self):
+        return "Tree()"
 """
     def ondeath():
         if Player.getisdead():
@@ -58,6 +77,9 @@ class Tree(Role):
 class Alpha(Role):
     def __init__(self):
         super().__init__('Alphawolf', 'Wacht jede 2. Nacht einzeln auf und muss alleine gewinnen', grouptypes.alpha, 1)
+
+    def __repr__(self):
+        return "Alpha()"
 """
     def vote_kill(target):
         if target.getrole() != grouptypes.werewolf:
@@ -69,37 +91,39 @@ class Alpha(Role):
 """
 
 
-#Werwolf: kennt andere werwölfe, spieler (nicht-werwolf) auswählen töten (countdown später?)
-#Dorfbewohner: nix?
-#Hexe: 1* töten (nicht hexe)  und heilen (-> muss wissen, wer gestorben ist)
-
-"""
 class Werewolf(Role):
     def __init__(self):
         super().__init__('Werwolf', 'kann mit anderen Werwölfen Gegner in der Nacht töten', grouptypes.werewolf, 2 )
-"""
+
+    def __repr__(self):
+        return "Werewolf()"
+
 """
     def vote_kill(target):
         if target.getrole() != grouptypes.werewolf:
             target.werewolfvote()
 """        
 
-"""
-class villager(Role):
+
+class Villager(Role):
     def __init__(self):
         super().__init__('Dorfbewohner', 'keine besonderen Fähigkeiten', grouptypes.villager, 1 )
+    
+    def __repr__(self):
+        return "Villager()"
 
-class witch(Role):
-    def __init__(self, has_healed, has_killed, awakens):
+class Witch(Role):
+    def __init__(self, hasHealed = False, hasKilled = False, awakens = True):
         super().__init__('Hexe', 'kann je 1x töten und heilen im ganzen Spiel, in der Nacht', grouptypes.villager, 1 )
-        self.__hasHealed = False
-        self.__hasKilled = False
-        self.__awakens =True
+        self.__hasHealed = hasHealed
+        self.__hasKilled = hasKilled
+        self.__awakens = awakens
 
         def sethealed(self, boolean):
-            self.__hasHealed == boolean
-        
-        #def __repr__(self)
+            self.__healed == boolean
+    
+    def __repr__(self):
+        return f"Witch(hasHealed={self.__hasHealed}, hasKilled={self.__hasKilled}, awakens={self.__awakens})"
             
 '''
     def show_victims():
@@ -113,7 +137,7 @@ class witch(Role):
             target.kill
             Player.getrole().sethealed = True
 '''
-     """  
+       
 
 """
     def kill(target):
