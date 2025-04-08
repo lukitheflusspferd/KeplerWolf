@@ -6,7 +6,7 @@ from ClientData import computePing, validName
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def check_connection(ip, port, timeout=2):
+def checkConnection(ip, port, timeout=2):
     """
     Prüfen, ob mit der gegebenen IP und dem gegebenen Port eine Verbindung aufgebaut werden kann
     """
@@ -31,7 +31,7 @@ while not connected:
     # Check connection
     print(f"Versuche, Server an IP [{ip}] zu erreichen...")
     try:
-        if check_connection(ip, port):
+        if checkConnection(ip, port):
             print("Erfolgreich verbunden!")
             connected = True
         else:
@@ -61,7 +61,8 @@ try:
         print("")
         answer = eval(b_answer.decode())
 
-        computePing(answer)        
+        computePing(answer)   
+        validName = True     
 finally:
     pass
 

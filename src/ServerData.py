@@ -1,6 +1,11 @@
 from ClassPlayer import Player
 from Roles import *
 
+EMPTYPING = {
+    "type": "EmptyPing",
+    "data": "",
+}
+
 playerNamesPreGame = []
 
 ipToPlayerID = dict()
@@ -34,6 +39,8 @@ mailbox = {
     player : [] for player in playerDatabase
 }
 
+mailbox["console"] = []
+
 mailbox["luki"].append( {
      "type" : "InitPing",
      "data" : repr(playerDatabase["luki"])
@@ -51,6 +58,28 @@ def computePlayernamePing(data):
         }
     }
 
+def computeCommand(cmd):
+    """
+    Verarbeiten eines Konsolenbefehls
+
+    Args:
+        cmd (str): Einheitlicher Befehlstyp
+    """
+    global ServerState
+    
+    match cmd:
+        case "gameStart":
+            if ServerState != "PreGame":
+                return {
+                    "type": "ConsoleError",
+                    "data": "Das Spiel ist bereits gestartet.",
+                }
+            ServerState = "GameLoop"
+            print("Changed SterverState to [GameLoop].")
+            print(f"Initializing the game with the following players: {str(playerNamesPreGame)} ...")
+    
+    return EMPTYPING
+
 def computePing(ip : str, data : dict) -> dict:
     playerID = resolveIPtoPlayerID(ip)
     # playerName = players[playerID].getname()
@@ -58,6 +87,14 @@ def computePing(ip : str, data : dict) -> dict:
     match data['type']:
         case 'EmptyPing':
             pass
+        case 'EmptyConsolePing':
+            pass
+        case 'ConsoleInitPing':
+            ipToPlayerID[ip] = "console"
+            playerID = "console"
+        case 'ConsoleCommand':
+            cmd = data['data']
+            return computeCommand(cmd)
         case 'UsernamePing':
             if ServerState == 'PreGame':
                 return computePlayernamePing(data["data"])
@@ -66,11 +103,8 @@ def computePing(ip : str, data : dict) -> dict:
         case _:
             raise Exception("Unknown ping Type from IP ["+ip+"]")
         
-    if mailbox[playerID] != []:
+    if mailbox.get(playerID):
             return mailbox[playerID].pop()
     else: 
-        return {
-            "type":"EmptyPing",
-            "data":"",
-        }
+        return EMPTYPING
         

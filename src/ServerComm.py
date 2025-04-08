@@ -1,4 +1,5 @@
 import json
+import os
 import selectors
 import socket
 import time
@@ -14,7 +15,8 @@ def startServer():
     print("Starting server...")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("", PORT))
-    print("Server listening at port", PORT)
+    ip = socket.gethostbyname(socket.gethostname())
+    print(f"Server listening on IP [{ip}] at port [{PORT}]")
     server.setblocking(False)
     server.listen(1)
 
