@@ -5,6 +5,9 @@ from random import randint
 
 
 class Armor(Role):
+    """
+    Classe des Armors, welcher 2 Spieler verlieben kann.
+    """
     def __init__(self, hasCoupled = False, awakens = True):
         super().__init__('Armor', 'Ja kann Leute verlieben', grouptypes.villager, 1)
         self.__hasCoupled = hasCoupled
@@ -21,6 +24,9 @@ class Armor(Role):
 """
 
 class Seer(Role):
+    """
+    Klasse des Sehers, welcher eine Rolle pro Nacht anschauen kann.
+    """
     def __init__(self):
         super().__init__('Seher', 'Kann Rollen anschauen', grouptypes.villager, 1)
 
@@ -32,6 +38,9 @@ class Seer(Role):
 """
 
 class Littlegirl(Role):
+    """
+    Klasse des Blinzelmädchens, welches mit einem Risiko herausfinden kann ob 2 spieler werwölfe sind oder nicht.
+    """
     def __init__(self):
         super().__init__('Blinzelmädchen', 'Kann in der Nacht eine Rolle herausfinden, aber mit einem Risiko', grouptypes.villager, 1)
 
@@ -45,9 +54,14 @@ class Littlegirl(Role):
             Player.kill()
         else:
             return target1.getrole(), target2.getrole()
+        
+        # PING INTERPRETIEREN, AUSGEBEN OB WERWOLF ODER NICHT
 """
 
 class Hunter(Role):
+    """
+    Klasse des Jägers, welche einen Spieler nach dem Tod erschießen kann(irl).
+    """
     def __init__(self):
         super().__init__('Jäger', 'Nimmt eine Person in den Tod mit', grouptypes.villager, 1)
         
@@ -61,6 +75,9 @@ class Hunter(Role):
 """
 
 class Tree(Role): 
+    """
+    Klasse des Baums, welcher 2 HP hat, wenn er stirbt werden alle Rollen außer die Werwölfe deaktiviert.
+    """
     def __init__(self):
         super().__init__('Baum', 'Hat 2 HP, wenn er stirbt werden alle Rollen deaktiviert', grouptypes.villager, 2)
 
@@ -75,6 +92,9 @@ class Tree(Role):
 """
 
 class Alpha(Role):
+    """
+    Klasse des Alphawolfes, welcher mit den Werwölfen und alleine töten kann, er muss alleine gewinnen.
+    """
     def __init__(self):
         super().__init__('Alphawolf', 'Wacht jede 2. Nacht einzeln auf und muss alleine gewinnen', grouptypes.alpha, 1)
 
@@ -92,6 +112,9 @@ class Alpha(Role):
 
 
 class Werewolf(Role):
+    """
+    Klasse des Werwolfes, welcher mit anderen Werwölfen Gegner in der Nacht töten kann
+    """
     def __init__(self):
         super().__init__('Werwolf', 'kann mit anderen Werwölfen Gegner in der Nacht töten', grouptypes.werewolf, 2 )
 
@@ -106,6 +129,9 @@ class Werewolf(Role):
 
 
 class Villager(Role):
+    """
+    Klasse des Villagers, er kann nichts.
+    """
     def __init__(self):
         super().__init__('Dorfbewohner', 'keine besonderen Fähigkeiten', grouptypes.villager, 1 )
     
@@ -113,6 +139,9 @@ class Villager(Role):
         return "Villager()"
 
 class Witch(Role):
+    """
+    Klasse der Hexe, welche ein mal pro Spiel einen anderen Spieler heilen oder töten kann.
+    """
     def __init__(self, hasHealed = False, hasKilled = False, awakens = True):
         super().__init__('Hexe', 'kann je 1x töten und heilen im ganzen Spiel, in der Nacht', grouptypes.villager, 1 )
         self.__hasHealed = hasHealed

@@ -1,6 +1,9 @@
 from enum import Enum
 
 class grouptypes(Enum):
+    """
+    Definiert Arten von Gruppen, welche als solche gewinnen können
+    """
     villager = 1
     werewolf = 2
     lovers = 3

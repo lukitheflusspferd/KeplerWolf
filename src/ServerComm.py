@@ -4,7 +4,7 @@ import selectors
 import socket
 import time
 
-from ServerData import computePing, resolveIPtoPlayerID, ServerState
+from ServerData import computePing, resolveIPtoPlayerID, getServerState
 
 # siehe https://openbook.rheinwerk-verlag.de/python/34_001.html
 
@@ -55,7 +55,7 @@ def ping(selector, client):
     ip = client.getpeername()[0]
     # Wenn die Nachricht einen Inhalt hat
     if message:
-        if ServerState == "PreGame":
+        if getServerState() == "PreGame":
             print("\nGot Ping from IP [{}] with the following data: \n {}".format(ip, message.decode()))
         else:
             print("\nGot Ping from player with ID [{}] at IP [{}] with the following data: \n {}".format(resolveIPtoPlayerID(ip), ip, message.decode()))

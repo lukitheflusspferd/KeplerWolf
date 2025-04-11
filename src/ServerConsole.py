@@ -18,6 +18,11 @@ def computeCommand(cmd):
             "type": "ConsoleCommand",
             "data": "gameStart"
         }
+        case "trigger vote":
+            return {
+            "type": "ConsoleCommand",
+            "data": "voteTrigger"
+        }
         case _:
             print("Fehler: Unbekannter Befehl")
             return {

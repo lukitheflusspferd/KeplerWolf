@@ -61,7 +61,6 @@ try:
         print("")
         answer = eval(b_answer.decode())
 
-        computePing(answer)   
         validName = True     
 finally:
     pass

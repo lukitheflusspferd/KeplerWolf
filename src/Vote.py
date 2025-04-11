@@ -1,4 +1,3 @@
-from ClientData import mailbox
 from enum import Enum
 
 class announcementtypes(Enum):
@@ -10,16 +9,18 @@ class announcementtypes(Enum):
     hunter = 6
 
 def Voting(players, type):
-    global mailbox
-    if type == announcementtypes.werewolf: 
+    print("Voting wird ausgeführt")
+    
+    if type == "werewolf": 
         votetype = 'zum töten durch Werwölfe: '
-    elif type == announcementtypes.mayor:
+    elif type == "mayor":
         votetype = 'zur Bürgermeisterwahl: '
-    elif type == announcementtypes.hanging:
+        print("votetype")
+    elif type == "hanging":
         votetype = 'zum Anklagen: '
-    elif type == announcementtypes.alpha: 
+    elif type == "alpha": 
         votetype = 'zum töten durch den ALPHA: '
-    elif type == announcementtypes.hunter:
+    elif type == "hunter":
         votetype = 'zum töten durch den Jäger: '
     namesavailable = 'Spieler verfügbar ' + votetype
     j = 0
@@ -37,7 +38,7 @@ def Voting(players, type):
         for i in players:
             if Vote == i: notyetvoted = False
         if notyetvoted: print('Name nicht erkannt')
-    mailbox.append(Vote)
+    return Vote
 
 def Nominate(players, type):
     global mailbox

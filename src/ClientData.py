@@ -1,10 +1,18 @@
 from ClassPlayer import Player
+from Vote import Voting
 
 clientPlayerData = None
 
-mailbox = [""]
+mailbox = []
 validName = False
 errorName = ""
+
+def getMailbox():
+    return mailbox
+
+def setMailbox(newMailbox):
+    global mailbox
+    mailbox = newMailbox
 
 def computePing(message: dict):
     if message["type"] == "InitPing":
@@ -23,9 +31,17 @@ def computePing(message: dict):
     if message["type"] == "SetMode":
         type = eval(message["data"]["eventType"])
         data = eval(message["data"]["data"])
-        # if eventType == 
         # hier später pygame Funktion aufrufen
-        
+
+    if message["type"] == "VotePing":
+        messageData = eval(message["data"])
+        voteType = messageData["type"]
+        players = messageData["players"]
+
+        vote = Voting(players, voteType)
+        mailbox.append(vote)
+        print(mailbox)
+
     if message["type"] == "DeathPing":
         username = eval(message["data"]["username"])
         role =  eval(message["data"]["role"])
@@ -42,7 +58,3 @@ def computePing(message: dict):
 
         print(validName)
         print(errorName)
-
-    if mailbox != "":
-        return mailbox[0]
-
