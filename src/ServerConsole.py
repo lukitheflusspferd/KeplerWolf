@@ -1,7 +1,9 @@
-import sys
 import json
 from time import sleep
 import socket
+
+from Rollenverteilung import assignRoles
+from Roles import ROLES_LIST
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -16,7 +18,7 @@ def computeCommand(cmd):
         case "start game":
             return {
             "type": "ConsoleCommand",
-            "data": "gameStart"
+            "data": "gameStartCMD"
         }
         case "trigger vote":
             return {
@@ -30,6 +32,38 @@ def computeCommand(cmd):
             "data": ""
         }
     
+def computePing(data: dict):
+    """
+    Verarbeitung der Antwort des Servers
+
+    Args:
+        data (dict): zu verarbeitender Ping
+    """
+    match data['type']:
+        case 'EmptyPing':
+            pass
+        case 'EmptyConsolePing':
+            pass
+        case 'ConsoleError':
+            print("Fehler:", data['data'])
+        case 'consoleGameInit':
+            players = eval(data['data'])
+            print("Angemeldete Spieler:", players)
+            print("Es gibt", len(players), """Spieler. Bitte gib für jede Rolle die Anzahl an Spielern an, welche diese Rolle bekommen sollen.
+                  Die restlichen Spieler bekommen die Rolle "Dorfbewohner".\n""")
+            
+            roles = assignRoles(players, {
+                'Werewolf': 2,
+                'Witch': 1,
+                'Seer': 0,
+                'Hunter': 0,
+                'Littlegirl': 0,
+                'Alpha': 0,
+                'Tree': 0
+            })
+            print("Rollenverteilung:", roles)
+        case _:
+            print("Fehler: Unbekannter Ping-Typ")
 
 def checkConnection(ip, port, timeout=2):
     """
@@ -84,11 +118,9 @@ try:
         
         answer = s.recv(1024)
         answer = json.loads(answer)
-        # print("[{}] {}".format(ip, answer.decode()))
-        if answer["type"] == "ConsoleError":
-            print("Fehler:", answer["data"])
         
-        sleep(1)
+        computePing(answer)
+        
 finally:
     print("Verbindung beendet")
     s.close()

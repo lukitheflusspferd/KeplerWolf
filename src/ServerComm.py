@@ -55,10 +55,10 @@ def ping(selector, client):
     ip = client.getpeername()[0]
     # Wenn die Nachricht einen Inhalt hat
     if message:
-        if getServerState() == "PreGame":
-            print("\nGot Ping from IP [{}] with the following data: \n {}".format(ip, message.decode()))
-        else:
-            print("\nGot Ping from player with ID [{}] at IP [{}] with the following data: \n {}".format(resolveIPtoPlayerID(ip), ip, message.decode()))
+        #if getServerState() == "PreGame":
+        #    print("\nGot Ping from IP [{}] with the following data: \n {}".format(ip, message.decode()))
+        #else:
+        #    print("\nGot Ping from player with ID [{}] at IP [{}] with the following data: \n {}".format(resolveIPtoPlayerID(ip), ip, message.decode()))
 
         pingData = json.loads(message)
         

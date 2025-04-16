@@ -9,7 +9,7 @@ class Armor(Role):
     Classe des Armors, welcher 2 Spieler verlieben kann.
     """
     def __init__(self, hasCoupled = False, awakens = True):
-        super().__init__('Armor', 'Ja kann Leute verlieben', grouptypes.villager, 1)
+        super().__init__('Armor', 'Kann zwei Spieler verlieben. Wird der eine umgebracht, stirbt auch der andere.', grouptypes.villager, 1)
         self.__hasCoupled = hasCoupled
         self.__awakens = awakens
 
@@ -133,7 +133,7 @@ class Villager(Role):
     Klasse des Villagers, er kann nichts.
     """
     def __init__(self):
-        super().__init__('Dorfbewohner', 'keine besonderen Fähigkeiten', grouptypes.villager, 1 )
+        super().__init__('Dorfbewohner', 'Besitzt keine besonderen Fähigkeiten.', grouptypes.villager, 1 )
     
     def __repr__(self):
         return "Villager()"
@@ -175,4 +175,19 @@ class Witch(Role):
             target.kill()
 
     # wenn has_killed and has_healed == True: hexe erwacht nicht mehr
+"""
+
+ROLES_LIST = [
+    Armor(),
+    Seer(),
+    Littlegirl(),
+    Hunter(),
+    Tree(),
+    Alpha(),
+    Werewolf(),
+    Witch(),
+    Villager()
+]
+"""
+    Liste der Rollen, welche im Spiel vorkommen können, ohne die Dorfbewohner.
 """

@@ -34,11 +34,15 @@ def Voting(players, type):
     notyetvoted = True
     while notyetvoted:
         print('Für wen votest du?')
-        Vote = input('Hier den Namen eingeben: ')
+        vote = input('Hier den Namen eingeben: ')
         for i in players:
-            if Vote == i: notyetvoted = False
+            if vote == i: notyetvoted = False
         if notyetvoted: print('Name nicht erkannt')
-    return Vote
+    votePing = {
+        "type": "VoteAnswer",
+        "data": vote
+    }
+    return votePing
 
 def Nominate(players, type):
     global mailbox

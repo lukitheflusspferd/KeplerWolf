@@ -9,6 +9,7 @@ EMPTYPING = {
 playerNamesPreGame = []
 
 ipToPlayerID = dict()
+
 """
 ipToPlayerID["10.4.14.25"] = "luki"
 ipToPlayerID["10.4.14.24"] = "p2"
@@ -78,15 +79,19 @@ def computeCommand(cmd):
     global ServerState
     
     match cmd:
-        case "gameStart":
+        case "gameStartCMD":
             if ServerState != "PreGame":
                 return {
                     "type": "ConsoleError",
                     "data": "Das Spiel ist bereits gestartet.",
                 }
-            ServerState = "GameLoop"
-            print("Changed SterverState to [GameLoop].")
+            ServerState = "Initializing"
+            print("Changed SterverState to [Initializing].")
             print(f"Initializing the game with the following players: {str(playerNamesPreGame)} ...")
+            return {
+                "type": "consoleGameInit",
+                "data": repr(playerNamesPreGame),
+            }
 
         case "voteTrigger":
             vote = dict()
@@ -98,7 +103,7 @@ def computeCommand(cmd):
                         "type": "VotePing",
                         "data": repr(vote),
                     })
-            print(mailbox)
+            # print(mailbox)
     return EMPTYPING
 
 def computePing(ip : str, data : dict) -> dict:
