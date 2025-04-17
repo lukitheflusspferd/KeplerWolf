@@ -2,7 +2,7 @@ import json
 from time import sleep
 import socket
 
-from ClientData import computePing, validName
+from ClientData import computePing, validName, getMailbox, setMailbox
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -73,9 +73,18 @@ try:
         "data":"",
         }
 
-        b_message = json.dumps(message).encode('utf-8')
-        s.send(b_message)
-        print("EmptyPing an Server gesendet!")
+        global mailbox
+        mailbox = getMailbox()
+
+        if mailbox != []:
+            b_mailbox = json.dumps(mailbox[0]).encode('utf-8')
+            s.send(b_mailbox)
+            mailbox.pop
+            print("Mailbox an Server gesendet")
+        else: 
+            b_message = json.dumps(message).encode('utf-8')
+            s.send(b_message)
+            print("EmptyPing an Server gesendet")
 
         b_answer = s.recv(1024)
         print("[{}] {}".format(ip, b_answer.decode()))

@@ -15,6 +15,7 @@ def setMailbox(newMailbox):
     mailbox = newMailbox
 
 def computePing(message: dict):
+    global mailbox
     if message["type"] == "InitPing":
         global clientPlayerData
         clientPlayerData = eval(message["data"])

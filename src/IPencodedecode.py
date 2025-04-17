@@ -4,12 +4,17 @@ def encodeIP(ip: str):
     """
     encodedIP = ''
     numbers = ip.split('.',3)
+    temp3 = 0
     for i in numbers:
+        temp3 += 1
         temp1 = int(i)//26
         temp2 = int(i)%26
         temp1 = chr(65 + temp1)
         temp2 = chr(65 + temp2)
-        encodedIP = encodedIP + temp1 + temp2
+        if temp3 == 3:
+            encodedIP = encodedIP + '-' + temp1 + temp2
+        else:
+            encodedIP = encodedIP + temp1 + temp2
     return encodedIP
 
 
@@ -17,8 +22,13 @@ def decodeIP(ip):
     """
     Hebt die Verschlüsselung einer Buchstabenfolge auf, gibt IP wieder aus.
     """
+    temp5= []
     decodedIP = ''
     chars = list(ip)
+    for i in chars:
+        if i != '-':
+            temp5.append(i)
+    chars = temp5
     for i in range(8):
         if i % 2 == 0:
             temp = chars[i]
@@ -35,7 +45,9 @@ def decodeIP(ip):
                 decodedIP += '.' + str(number) 
     return decodedIP
 
+"""
 tmp = input("in: ")
 tmp = encodeIP(tmp)
 print(tmp)
 print(decodeIP(tmp))
+"""

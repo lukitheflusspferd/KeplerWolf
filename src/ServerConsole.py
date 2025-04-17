@@ -1,6 +1,8 @@
+import copy
 import json
-from time import sleep
 import socket
+# from time import sleep
+
 
 from Rollenverteilung import assignRoles
 from Roles import ROLES_LIST
@@ -65,6 +67,8 @@ def computePing(data: dict):
         case _:
             print("Fehler: Unbekannter Ping-Typ")
 
+    return None
+
 def checkConnection(ip, port, timeout=2):
     """
     Prüfen, ob mit der gegebenen IP und dem gegebenen Port eine Verbindung aufgebaut werden kann
@@ -109,17 +113,22 @@ s.send(initMessage)
 
 temp = s.recv(1024)
 
+messageOverride = None
+
 try:
     while True:
-        message = computeCommand(input(">>> "))
-
+        if messageOverride == None:
+            # Wenn es keine zu versendende Nachricht gibt, wird ein neuer Befehl abgefragt
+            message = computeCommand(input(">>> "))
+        else: 
+            message = copy.deepcopy(messageOverride)
         message = json.dumps(message).encode('utf-8')
         s.send(message)
         
         answer = s.recv(1024)
         answer = json.loads(answer)
         
-        computePing(answer)
+        messageOverride = computePing(answer)
         
 finally:
     print("Verbindung beendet")
