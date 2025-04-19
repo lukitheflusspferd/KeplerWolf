@@ -3,7 +3,7 @@ import json
 import socket
 # from time import sleep
 
-
+import Ping
 from Rollenverteilung import assignRoles
 from Roles import ROLES_LIST
 
@@ -18,21 +18,24 @@ def computeCommand(cmd):
     """
     match cmd:
         case "start game":
-            return {
-            "type": "ConsoleCommand",
-            "data": "gameStartCMD"
-        }
+            return Ping.fromData("ConsoleCommandPing", "gameStartCMD")
+        #    return {
+        #    "type": "ConsoleCommandPing",
+        #    "data": "gameStartCMD"
+        #}
         case "trigger vote":
-            return {
-            "type": "ConsoleCommand",
-            "data": "voteTrigger"
-        }
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger")
+        #    return {
+        #    "type": "ConsoleCommandPing",
+        #    "data": "voteTrigger"
+        #}
         case _:
             print("Fehler: Unbekannter Befehl")
-            return {
-            "type": "EmptyConsolePing",
-            "data": ""
-        }
+            return Ping.fromData("EmptyPing", "")
+            #return {
+            #    "type": "EmptyPing",
+            #    "data": ""
+            #}
     
 def computePing(data: dict):
     """
@@ -41,15 +44,16 @@ def computePing(data: dict):
     Args:
         data (dict): zu verarbeitender Ping
     """
-    match data['type']:
+    
+    pingType, pingData = Ping.toData(data)
+    
+    match pingType:
         case 'EmptyPing':
             pass
-        case 'EmptyConsolePing':
-            pass
         case 'ConsoleError':
-            print("Fehler:", data['data'])
-        case 'consoleGameInit':
-            players = eval(data['data'])
+            print("Fehler:", pingData)
+        case 'ConsoleGameInit':
+            players = pingData
             print("Angemeldete Spieler:", players)
             print("Es gibt", len(players), """Spieler. Bitte gib für jede Rolle die Anzahl an Spielern an, welche diese Rolle bekommen sollen.
                   Die restlichen Spieler bekommen die Rolle "Dorfbewohner".\n""")
@@ -65,7 +69,7 @@ def computePing(data: dict):
             })
             print("Rollenverteilung:", roles)
         case _:
-            print("Fehler: Unbekannter Ping-Typ")
+            print("Fehler: Unbekannter Ping-Typ:", pingType)
 
     return None
 
@@ -102,12 +106,12 @@ while not connected:
     except Exception as e:
         print(f"Der folgende Fehler ist aufgetreten: {e}\n Bitte versuche es erneut.")
 
-initMessage = {
-    "type": "ConsoleInitPing",
-    "data": "",
-}
+#initMessage = {
+#    "type": "ConsoleInitPing",
+#    "data": "",
+#}
 
-initMessage = json.dumps(initMessage).encode('utf-8')
+initMessage = json.dumps(Ping.fromData("ConsoleInitPing", "")).encode('utf-8')
 
 s.send(initMessage)
 

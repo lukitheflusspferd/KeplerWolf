@@ -3,6 +3,7 @@ from time import sleep
 import socket
 
 from ClientData import computePing, validName, getMailbox, setMailbox
+import Ping
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -47,39 +48,52 @@ ip = "10.4.14.26"
 # Spielernamen abfragen solange der Server diesen noch nicht validiert hat (z.B. bei Dopplung eines Namens)
 try:
     while not validName:
-        message = {
-            "type":"UsernamePing",
-            "data": input('Bitte gib deinen Namen ein:')
-        }
+        #message = {
+        #    "type":"UsernamePing",
+        #    "data": input('Bitte gib deinen Namen ein:')
+        #}
 
+        message = Ping.fromData("UsernamePing", input('Bitte gib deinen Namen ein:'))
+        
         b_message = json.dumps(message).encode('utf-8')
         s.send(b_message)
         print("Name an Server gesendet")
 
         b_answer = s.recv(1024)
-        print("[{}] {}".format(ip, b_answer.decode("utf-8")))
+        b_answer.decode("utf-8")
+        print("[{}] {}".format(ip, b_answer))
         print("")
-        answer = eval(b_answer.decode())
+        
+        pingType, pingData = Ping.toData(json.loads(b_answer))
 
-        validName = True     
+        if pingType != "UsernameValidationPing":
+            raise
+        
+        if pingData["valid"] == "True":
+            validName = True     
+        else:
+            if pingData["error"] == "doppelt":
+                print("Dieser Name ist bereits vergeben. Bitte wähle einen anderen.\n")
+            else:
+                print("Es ist ein sonstiger Fehler aufgetreten. Bitte versuche es erneut.\n")
+        
+except:
+    s.close()
+    raise Exception("Falscher Ping vom Server. Dieser Fehler sollte nie auftreten.")
 finally:
     pass
 
-
 try:
     while True:
-        message = {
-        "type":"EmptyPing",
-        "data":"",
-        }
+        message = Ping.fromData("EmptyPing", "")
 
         global mailbox
         mailbox = getMailbox()
 
         if mailbox != []:
-            b_mailbox = json.dumps(mailbox[0]).encode('utf-8')
+            b_mailbox = json.dumps(mailbox.pop(0)).encode('utf-8')
             s.send(b_mailbox)
-            mailbox.pop
+            # mailbox.pop
             print("Mailbox an Server gesendet")
         else: 
             b_message = json.dumps(message).encode('utf-8')
@@ -87,7 +101,7 @@ try:
             print("EmptyPing an Server gesendet")
 
         b_answer = s.recv(1024)
-        print("[{}] {}".format(ip, b_answer.decode()))
+        print("[Server] {}".format(b_answer.decode()))
         print("")
 
         computePing(json.loads(b_answer))

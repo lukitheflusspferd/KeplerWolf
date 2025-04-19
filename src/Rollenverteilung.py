@@ -18,7 +18,7 @@ def assignRoles(players : list, rolesConfig : dict):
     
     # Überprüfen, ob genug Spieler vorhanden sind
     if specialRolesCount > len(players):
-        return (f"Error: Not enough players. You need at least {specialRolesCount} players for the given roles.")
+        return (f"Fehler: Zu wenige Spieler für die angegebenen Rollen. Es werden mindestens {specialRolesCount} Spieler benötigt.")
     
     # Erstellen einer Liste aller einzelnen Rollen (z. B. ["Werewolf", "Witch", ...])
     roles = []

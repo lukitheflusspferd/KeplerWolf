@@ -1,12 +1,11 @@
 from ClassPlayer import Player
+import Ping
 from Roles import *
+# from ServerState import computeNightVoteCycle
 
-EMPTYPING = {
-    "type": "EmptyPing",
-    "data": "",
-}
+EMPTYPING = Ping.fromData("EmptyPing", "")
 
-playerNamesPreGame = []
+playerNamesPreGame = ["p1"]
 
 ipToPlayerID = dict()
 
@@ -59,8 +58,13 @@ def getServerState():
     return ServerState
 
 
-def computePlayernamePing(ip, data):
-    valid, errorMsg = isPlayernameValid(ip, data)
+def computePlayernamePing(ip, name):
+    valid, errorMsg = isPlayernameValid(ip, name)
+    data = {
+            "valid": "True" if valid else "False",
+            "error": errorMsg
+        }
+    return Ping.fromData("UsernameValidationPing", data)
     return {
         "type":"UsernameValidationPing",
         "data": {
@@ -81,17 +85,19 @@ def computeCommand(cmd):
     match cmd:
         case "gameStartCMD":
             if ServerState != "PreGame":
-                return {
-                    "type": "ConsoleError",
-                    "data": "Das Spiel ist bereits gestartet.",
-                }
+                return Ping.fromData("ConsoleError", "Das Spiel ist bereits gestartet.")
+                #return {
+                #    "type": "ConsoleError",
+                #    "data": "Das Spiel ist bereits gestartet.",
+                #}
             ServerState = "Initializing"
             print("Changed SterverState to [Initializing].")
             print(f"Initializing the game with the following players: {str(playerNamesPreGame)} ...")
-            return {
-                "type": "consoleGameInit",
-                "data": repr(playerNamesPreGame),
-            }
+            return Ping.fromData("ConsoleGameInit", playerNamesPreGame)
+            #return {
+            #    "type": "consoleGameInit",
+            #    "data": repr(playerNamesPreGame),
+            #}
 
         case "voteTrigger":
             vote = dict()
@@ -99,10 +105,11 @@ def computeCommand(cmd):
             vote["players"] = playerNamesPreGame
             for player in mailbox.keys():
                 if player == "console": continue
-                mailbox[player].append({
-                        "type": "VotePing",
-                        "data": repr(vote),
-                    })
+                mailbox[player].append(Ping.fromData("VotePing", vote))
+                #mailbox[player].append({
+                #        "type": "VotePing",
+                #        "data": repr(vote),
+                #    })
             # print(mailbox)
     return EMPTYPING
 
@@ -110,29 +117,32 @@ def computePing(ip : str, data : dict) -> dict:
     playerID = resolveIPtoPlayerID(ip)
     # playerName = players[playerID].getname()
 
-    match data['type']:
+    pingType, pingData = Ping.toData(data)
+    
+    match pingType:
         case 'EmptyPing':
-            pass
-        case 'EmptyConsolePing':
             pass
         case 'ConsoleInitPing':
             ipToPlayerID[ip] = "console"
             playerID = "console"
             print("Console connected!")
-        case 'ConsoleCommand':
-            cmd = data['data']
+        case 'ConsoleCommandPing':
+            cmd = pingData
             return computeCommand(cmd)
         case 'UsernamePing':
             if ServerState == 'PreGame':
-                return computePlayernamePing(ip, data["data"])
+                return computePlayernamePing(ip, pingData)
             else:
                 # TODO: Dem Spieler die aktuellen Daten senden, da davon auzugehen ist, dass er dem Spiel gerejoined ist
                 raise Exception(f"Got [UsernamePing] from IP [{ip}], but the game has already been started.") 
         case _:
-            raise Exception("Unknown ping Type from IP ["+ip+"]")
+            print(f"Ping von {playerID} übersprungen da Typ unbekannt: {pingType}")
+            # raise Exception("Unknown ping Type from IP ["+ip+"]")
         
     if mailbox.get(playerID):
         return mailbox[playerID].pop()
     else: 
         return EMPTYPING
         
+
+#print(computeNightVoteCycle(playerDatabase, 1))

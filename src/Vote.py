@@ -1,5 +1,7 @@
 from enum import Enum
 
+import Ping
+
 class announcementtypes(Enum):
     werewolf = 1
     mayor = 2
@@ -38,11 +40,12 @@ def Voting(players, type):
         for i in players:
             if vote == i: notyetvoted = False
         if notyetvoted: print('Name nicht erkannt')
-    votePing = {
-        "type": "VoteAnswer",
-        "data": vote
-    }
-    return votePing
+    #votePing = {
+    #    "type": "VoteAnswerPing",
+    #    "data": vote
+    #}
+    #return votePing
+    return Ping.fromData("VoteAnswerPing", vote)
 
 def Nominate(players, type):
     global mailbox

@@ -1,4 +1,5 @@
 from ClassPlayer import Player
+import Ping
 from Vote import Voting
 
 clientPlayerData = None
@@ -16,46 +17,47 @@ def setMailbox(newMailbox):
 
 def computePing(message: dict):
     global mailbox
-    if message["type"] == "InitPing":
+    
+    messageType, messageData = Ping.toData(message)
+    # print("PingTyp:", messageType, "PingData:", messageData)
+    
+    if messageType == "InitPing":
         global clientPlayerData
-        clientPlayerData = eval(message["data"])
+        clientPlayerData = messageData
 
         print(clientPlayerData)
         print("")
 
-    if message["type"] == "TestPing":
-        test = True
-
-    if message["type"] == "EmptyPing":
+    if messageType == "EmptyPing":
         pass
 
-    if message["type"] == "SetMode":
-        type = eval(message["data"]["eventType"])
-        data = eval(message["data"]["data"])
+    if messageType == "SetMode":
+        type = messageData["eventType"]
+        data = messageData["data"]
         # hier später pygame Funktion aufrufen
 
-    if message["type"] == "VotePing":
-        messageData = eval(message["data"])
+    if messageType == "VotePing":
+        messageData = messageData
         voteType = messageData["type"]
         players = messageData["players"]
 
         vote = Voting(players, voteType)
         mailbox.append(vote)
-        print(mailbox)
+        # print(mailbox)
 
-    if message["type"] == "DeathPing":
-        username = eval(message["data"]["username"])
-        role =  eval(message["data"]["role"])
+    if messageType == "DeathPing":
+        username = messageData["username"]
+        role =  messageData["role"]
         # hier später pygame Funktion aufrufen
         
-    if message["type"] == "UsernameValidationPing":
-        global validName
-        validName = eval(message["data"]["valid"])
-
-        global errorName
-        errorName = eval(message["data"]["error"])
-        if errorName == "doppelt": 
-            print("Dieser Name wird schon benutzt")
-
-        print(validName)
-        print(errorName)
+    #if messageType == "UsernameValidationPing":
+    #    global validName
+    #    validName = messageData["valid"]
+    #
+    #    global errorName
+    #    errorName = messageData["error"]
+    #    if errorName == "doppelt": 
+    #        print("Dieser Name wird schon benutzt")
+    #
+    #    print(validName)
+    #    print(errorName)
