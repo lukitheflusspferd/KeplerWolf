@@ -19,7 +19,7 @@ class Button:
         pygame.draw.rect(win, self.__color, (self.__x, self.__y, self.__width, self.__height), 0)
         
         if self.__text != '':
-            font = pygame.font.SysFont('comicsans', 60) #Schriftart und -größe
+            font = pygame.font.SysFont('comicsans', 30) #Schriftart und -größe
             text = font.render(self.__text, 1, (0, 0, 0))
             win.blit(text, (self.__x + (self.__width/2 - text.get_width()/2), self.__y + (self.__height/2 - text.get_height()/2)))
 
@@ -63,7 +63,7 @@ def button_action():
 
 # Main game loop
 running = True
-while running:
+if not running:
     win.fill((255, 255, 255))  # Fill screen with white
     
     # Draw the button
