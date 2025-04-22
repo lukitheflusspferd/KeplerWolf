@@ -1,6 +1,6 @@
 from IPencodedecode import decodeIP
 from enum import Enum
-
+from ClassButton import Button
 import pygame
 import pygame.freetype
 from pygame.locals import *
@@ -148,6 +148,8 @@ def filllogintext():
 def onquit():
     #s.close()
     pass
+my_button = Button((0, 255, 0), 300, 250, 200, 100, "Click Me")
+my_button.draw(screen, outline=(0, 0, 0))
 
 onstatechange(windowtypes.login)
 while True: 
