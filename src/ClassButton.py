@@ -11,7 +11,7 @@ class Button:
         self.__height = height
         self.__text = text
 
-    def draw(self, win, outline=None):
+    def draw(self, win,font, outline=None, ):
         # Call this method to draw the button on the screen
         if outline:
             pygame.draw.rect(win, outline, (self.__x-2, self.__y-2, self.__width+4, self.__height+4), 0)
@@ -19,7 +19,7 @@ class Button:
         pygame.draw.rect(win, self.__color, (self.__x, self.__y, self.__width, self.__height), 0)
         
         if self.__text != '':
-            font = pygame.font.SysFont('comicsans', 30) #Schriftart und -größe
+            font = pygame.font.SysFont(font, 30) #Schriftart und -größe
             text = font.render(self.__text, 1, (0, 0, 0))
             win.blit(text, (self.__x + (self.__width/2 - text.get_width()/2), self.__y + (self.__height/2 - text.get_height()/2)))
 
