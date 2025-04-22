@@ -50,8 +50,8 @@ class Button:
 pygame.init()
 
 # Set up display
-win = pygame.display.set_mode((800, 600))
-pygame.display.set_caption("Button Example")
+#win = pygame.display.set_mode((800, 600))
+#pygame.display.set_caption("Button Example")
 
 # Create a button
 my_button = Button((0, 255, 0), 300, 250, 200, 100, "Click Me")
