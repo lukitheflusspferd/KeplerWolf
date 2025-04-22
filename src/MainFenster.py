@@ -57,15 +57,15 @@ def onstatechange(state):
         global ishosting
         ishosting = False
         while undecided:
-            font = pygame.font.SysFont('Comic Sans', 30)
+            font = pygame.font.SysFont('comicsans', 30)
             text_surface = font.render("Hosten oder Joinen?", False, (0,0,0))
             text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))
             screen.blit(text_surface, text_rect)
             pygame.display.flip()
             Button1 = Button((0, 255, 0), display.current_w // 2 + 25, display.current_h // 2 + 45, 110, 42, "Hosten")
-            Button1.draw(screen, outline=(0, 0, 0))
+            Button1.draw(screen,"comicsans", outline=(0, 0, 0))
             Button2 = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 45, 110, 42, "Joinen")
-            Button2.draw(screen, outline=(0, 0, 0))
+            Button2.draw(screen,"comicsans", outline=(0, 0, 0))
             pygame.display.flip()
     
             for event in pygame.event.get():
@@ -90,7 +90,7 @@ def onstatechange(state):
         input_rect = pygame.Rect(display.current_w // 2 - 50, display.current_h // 2 + 50, 100, 32)
 
         inputonscreen = True
-        font = pygame.font.SysFont('Comic Sans', 30)
+        font = pygame.font.SysFont('comicsans', 30)
         text_surface = font.render("Login", False, (0,0,0))
         text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))        
         screen.blit(text_surface, text_rect)
@@ -101,30 +101,42 @@ def onstatechange(state):
             text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-80))
             screen.blit(text_surface, text_rect)
             hostname = socket.gethostname()
-            IPAddr = socket.gethostbyname(hostname)
-            lobbycode = encodeIP(IPAddr)
+            IP = socket.gethostbyname(hostname)
+            lobbycode = encodeIP(IP)
             text_surface = font.render(lobbycode, False, (0,0,0))
             text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-40))
             screen.blit(text_surface, text_rect)
             pygame.display.flip()
-            pass
             confirmusername("")
         else:
             confirmip("")
     if state == windowtypes.lobby:
-        if inputonscreen:
-            inputonscreen = False
-            onstatechange(windowtypes.lobby)
-        else:   
-            drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
-            pygame.draw.rect(screen, (255,25,255), drawover_rect)
-            pygame.display.flip()
-            font = pygame.font.SysFont('Comic Sans', 30)
-            text_surface = font.render("Lobby", False, (0,0,0))
-            text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))
-            screen.blit(text_surface, text_rect)
-            pygame.display.flip()
-            
+        inputonscreen = False
+        drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
+        pygame.draw.rect(screen, (255,255,255), drawover_rect)
+        pygame.display.flip()
+        font = pygame.font.SysFont('comicsans', 60)
+        text_surface = font.render("Lobby", False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w // 2, 100))
+        screen.blit(text_surface, text_rect)
+        pygame.draw.line(screen, (0, 0, 0), (display.current_w//4, 0), (display.current_w//4, display.current_h),5)
+        font = pygame.font.SysFont('comicsans', 30)
+        text_surface = font.render("Spieler", False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
+        screen.blit(text_surface, text_rect)
+        # Hier Code für Spielerliste einfügen
+        Button1 = Button((0, 255, 0), display.current_w // 2 - 55, display.current_h // 2 + 150, 110, 42, "Start")
+        Button1.draw(screen,"comicsans", outline=(0, 0, 0))
+        # Hier Spielermodels einfügen
+        font = pygame.font.SysFont('sans-serif', 30)
+        font.bold = True
+        
+        Button2 = Button((0, 255, 0), display.current_w // 2 - 40, display.current_h // 2 + 20, 40, 42, "<")
+        Button2.draw(screen,"sans-serif", outline=(0, 0, 0))
+        Button3 = Button((0, 255, 0), display.current_w // 2 , display.current_h // 2 + 20, 40, 42, ">")
+        Button3.draw(screen,"sans-serif", outline=(0, 0, 0))
+        pygame.display.flip()
+        
 
 global ipconfirmed
 ipconfirmed = False            
@@ -139,7 +151,7 @@ def confirmip(ip):
     confirmusername("")
         # BIS HIER RAUSNEHMEN WENN WIR DAS RICHTIG LAUFEN LASSEN, das nur weil ip ja nicht aktiv ist
     print("Joa 1")
-    font = pygame.font.SysFont('Comic Sans', 30)
+    font = pygame.font.SysFont('comicsans', 30)
     text_surface = font.render("Lobby Code eingeben:", False, (0,0,0))
     text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2))
     screen.blit(text_surface, text_rect)
@@ -164,7 +176,7 @@ def confirmip(ip):
             filllogintext()
             confirmusername("")
         else:
-            font = pygame.font.SysFont('Comic Sans', 30)
+            font = pygame.font.SysFont('comicsans', 30)
             text_surface = font.render("Lobby Code nicht gültig", False, (255,0,0))
             text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 + 125))
             screen.blit(text_surface, text_rect)
@@ -175,7 +187,7 @@ usernameconfirmed = False
 
 def confirmusername(name):
     print("Joa 3")
-    font = pygame.font.SysFont('Comic Sans', 30)
+    font = pygame.font.SysFont('comicsans', 30)
     text_surface = font.render("Spielernamen eingeben:", False, (0,0,0))
     text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2))
     screen.blit(text_surface, text_rect)
@@ -201,6 +213,8 @@ def confirmusername(name):
         #   filllogintext()
         #   onstatechange(windowtypes.lobby)
         filllogintext()
+        global usernameconfirmed
+        usernameconfirmed = True
         onstatechange(windowtypes.lobby)     
 def filllogintext():
     fill_rect1 = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-30 , 500, 60)
@@ -253,21 +267,22 @@ while True:
                 else: 
                     color = color_passive 
                     
-                # draw rectangle and argument passed which should be on screen 
-                pygame.draw.rect(screen, (0,0,0), background_rect)
-                pygame.draw.rect(screen, color, input_rect) 
-                
-                text_surface = base_font.render(user_text, True, (255, 255, 255)) 
-                
-                # render at position stated in arguments 
-                screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
-                
-                # set width of textfield so that text cannot get outside of user's text input 
-                input_rect.w = max(100, text_surface.get_width()+10) 
-                if windowstate == windowtypes.lobby:
-                    drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
-                    pygame.draw.rect(screen, (255,25,255), drawover_rect)
+                # draw rectangle and argument passed which should be on screen
+                if not usernameconfirmed: 
+                    pygame.draw.rect(screen, (0,0,0), background_rect)
+                    pygame.draw.rect(screen, color, input_rect) 
                     
+                    text_surface = base_font.render(user_text, True, (255, 255, 255)) 
+                    
+                    # render at position stated in arguments 
+                    screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
+                    
+                    # set width of textfield so that text cannot get outside of user's text input 
+                    input_rect.w = max(100, text_surface.get_width()+10) 
+                    if windowstate == windowtypes.lobby:
+                        drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
+                        pygame.draw.rect(screen, (255,25,255), drawover_rect)
+                        
                 
                 pygame.display.flip()
                 # clock.tick(60) means that for every second at most 
