@@ -1,4 +1,4 @@
-from IPencodedecode import decodeIP
+from IPencodedecode import encodeIP, decodeIP
 from enum import Enum
 from ClassButton import Button
 import pygame
@@ -17,7 +17,7 @@ class windowtypes(Enum):
     win = 4
     lose = 5
 
-
+global inputonscreen
 clock = pygame.time.Clock() 
 display = pygame.display.Info()
 screen = pygame.display.set_mode((display.current_w, display.current_h - 60), 0,0,0)
@@ -47,22 +47,84 @@ def setstate(window):
     onstatechange(windowstate)
 
 def onstatechange(state):
-    screen.fill((255,255,255))
+    global inputonscreen
     if state == windowtypes.login:
+        screen.fill((255,255,255))
         global windowstate
         windowstate = windowtypes.login
+        # abfragen ob hosten oder joinen
+        undecided = True
+        global ishosting
+        ishosting = False
+        while undecided:
+            font = pygame.font.SysFont('Comic Sans', 30)
+            text_surface = font.render("Hosten oder Joinen?", False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))
+            screen.blit(text_surface, text_rect)
+            pygame.display.flip()
+            Button1 = Button((0, 255, 0), display.current_w // 2 + 25, display.current_h // 2 + 45, 110, 42, "Hosten")
+            Button1.draw(screen, outline=(0, 0, 0))
+            Button2 = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 45, 110, 42, "Joinen")
+            Button2.draw(screen, outline=(0, 0, 0))
+            pygame.display.flip()
+    
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if Button1.isOver(event.pos):
+                        ishosting = True
+                        print("Hosten")
+                        # Hier Code für Hosten einfügen
+                        undecided = False
+                    elif Button2.isOver(event.pos):
+                        # Joinen
+                        print("Joinen")
+                        # Hier Code für Joinen einfügen
+                        undecided = False
+        drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-100 , 500, 300)
+        pygame.draw.rect(screen, (255,255,255), drawover_rect)
         global background_rect 
         background_rect = pygame.Rect(display.current_w // 2 - 55, display.current_h // 2 + 45, 110, 42)
         global input_rect
         input_rect = pygame.Rect(display.current_w // 2 - 50, display.current_h // 2 + 50, 100, 32)
-        global inputonscreen 
+
         inputonscreen = True
         font = pygame.font.SysFont('Comic Sans', 30)
         text_surface = font.render("Login", False, (0,0,0))
         text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))        
         screen.blit(text_surface, text_rect)
         pygame.display.flip()
-        confirmip("")
+        if ishosting:
+            # Hier Code für Hosten einfügen
+            text_surface = font.render("Lobby Code:", False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-80))
+            screen.blit(text_surface, text_rect)
+            hostname = socket.gethostname()
+            IPAddr = socket.gethostbyname(hostname)
+            lobbycode = encodeIP(IPAddr)
+            text_surface = font.render(lobbycode, False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-40))
+            screen.blit(text_surface, text_rect)
+            pygame.display.flip()
+            pass
+            confirmusername("")
+        else:
+            confirmip("")
+    if state == windowtypes.lobby:
+        if inputonscreen:
+            inputonscreen = False
+            onstatechange(windowtypes.lobby)
+        else:   
+            drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
+            pygame.draw.rect(screen, (255,25,255), drawover_rect)
+            pygame.display.flip()
+            font = pygame.font.SysFont('Comic Sans', 30)
+            text_surface = font.render("Lobby", False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))
+            screen.blit(text_surface, text_rect)
+            pygame.display.flip()
+            
 
 global ipconfirmed
 ipconfirmed = False            
@@ -138,7 +200,8 @@ def confirmusername(name):
         #if usernameconfirmed:
         #   filllogintext()
         #   onstatechange(windowtypes.lobby)
-        filllogintext()     
+        filllogintext()
+        onstatechange(windowtypes.lobby)     
 def filllogintext():
     fill_rect1 = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-30 , 500, 60)
     fill_rect2 = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2 + 100, 500, 120)
@@ -148,8 +211,6 @@ def filllogintext():
 def onquit():
     #s.close()
     pass
-my_button = Button((0, 255, 0), 300, 250, 200, 100, "Click Me")
-my_button.draw(screen, outline=(0, 0, 0))
 
 onstatechange(windowtypes.login)
 while True: 
@@ -180,31 +241,35 @@ while True:
                 elif event.key == pygame.K_RETURN:
                     print(user_text)
                     if windowstate == windowtypes.login:
-                        if not ipconfirmed:
+                        if not ipconfirmed and not ishosting:
                             confirmip(user_text)
                         elif not usernameconfirmed:
                             confirmusername(user_text)
                     elif windowstate == windowtypes.game:
                         pass
-
-            if active: 
-                color = color_active 
-            else: 
-                color = color_passive 
+            if windowstate != windowtypes.lobby:
+                if active: 
+                    color = color_active 
+                else: 
+                    color = color_passive 
+                    
+                # draw rectangle and argument passed which should be on screen 
+                pygame.draw.rect(screen, (0,0,0), background_rect)
+                pygame.draw.rect(screen, color, input_rect) 
                 
-            # draw rectangle and argument passed which should be on screen 
-            pygame.draw.rect(screen, (0,0,0), background_rect)
-            pygame.draw.rect(screen, color, input_rect) 
-            
-            text_surface = base_font.render(user_text, True, (255, 255, 255)) 
-            
-            # render at position stated in arguments 
-            screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
-            
-            # set width of textfield so that text cannot get outside of user's text input 
-            input_rect.w = max(100, text_surface.get_width()+10) 
-            
-            pygame.display.flip()
-            # clock.tick(60) means that for every second at most 
-            # 60 frames should be passed. 
-            clock.tick(60) 
+                text_surface = base_font.render(user_text, True, (255, 255, 255)) 
+                
+                # render at position stated in arguments 
+                screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
+                
+                # set width of textfield so that text cannot get outside of user's text input 
+                input_rect.w = max(100, text_surface.get_width()+10) 
+                if windowstate == windowtypes.lobby:
+                    drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
+                    pygame.draw.rect(screen, (255,25,255), drawover_rect)
+                    
+                
+                pygame.display.flip()
+                # clock.tick(60) means that for every second at most 
+                # 60 frames should be passed. 
+                clock.tick(60) 
