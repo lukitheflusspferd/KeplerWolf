@@ -7,6 +7,8 @@ from pygame.locals import *
 import sys   
 import socket
 import json
+from time import sleep
+from ClientData import computePing, validName, getMailbox, setMailbox
 pygame.init() 
 
 
@@ -29,6 +31,7 @@ inputonscreen = False
 base_font = pygame.font.Font(None, 32) 
 global user_text
 user_text = '' 
+ip = ""
 
 # create rectangle 
 background_rect = pygame.Rect(195, 195, 110, 42)
@@ -43,15 +46,20 @@ active = False
 
 windowstate = 0
 def setstate(window):
+    """
+    ändert die windowstate, macht später vllt mehr
+    """
+    global windowstate
     windowstate = window
     onstatechange(windowstate)
 
 def onstatechange(state):
+    """
+    führt die Hauptveränderungen auf dem Bildschirm durch
+    """
     global inputonscreen
     if state == windowtypes.login:
         screen.fill((255,255,255))
-        global windowstate
-        windowstate = windowtypes.login
         # abfragen ob hosten oder joinen
         undecided = True
         global ishosting
@@ -128,29 +136,68 @@ def onstatechange(state):
         Button1 = Button((0, 255, 0), display.current_w // 2 - 55, display.current_h // 2 + 150, 110, 42, "Start")
         Button1.draw(screen,"comicsans", outline=(0, 0, 0))
         # Hier Spielermodels einfügen
-        font = pygame.font.SysFont('sans-serif', 30)
-        font.bold = True
-        
         Button2 = Button((0, 255, 0), display.current_w // 2 - 40, display.current_h // 2 + 20, 40, 42, "<")
         Button2.draw(screen,"sans-serif", outline=(0, 0, 0))
         Button3 = Button((0, 255, 0), display.current_w // 2 , display.current_h // 2 + 20, 40, 42, ">")
         Button3.draw(screen,"sans-serif", outline=(0, 0, 0))
         pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if Button1.isOver(event.pos):
+                    print("Spiel starten")
+                    setstate(windowtypes.game)
+                elif Button2.isOver(event.pos):
+                    pass
+                    # Hier Code für vorherigen Spielermodel einfügen
+                elif Button3.isOver(event.pos):
+                    pass
+                    
+                    # Hier Code für nächsten Spielermodel einfügen
+
         
 
 global ipconfirmed
 ipconfirmed = False            
 
-def checkConnection(ip, port):
-    pass # DAS IST EIN PLACEHOLDER BIS WIR CLIENTCOMM IMPORTIEREN KÖNNEN
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def confirmip(ip):
+def checkConnection(ip, port, timeout=2):
+    """
+    Prüfen, ob mit der gegebenen IP und dem gegebenen Port eine Verbindung aufgebaut werden kann
+    """
+    try:
+        socket.setdefaulttimeout(timeout)
+        s.connect((ip, port))
+        return True
+    except (socket.error, socket.timeout):
+        return False
+    finally:
+        socket.setdefaulttimeout(None)
+
+def filllogintext():
+    """
+    übermalt die Login anzeigen um platz für neuen Text zu machen
+    """
+    fill_rect1 = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-30 , 500, 60)
+    fill_rect2 = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2 + 100, 500, 120)
+    pygame.draw.rect(screen, (255,255,255), fill_rect1)
+    pygame.draw.rect(screen, (255,255,255), fill_rect2)
+
+def confirmip(ip1):
+    """
+    überprüft, ob eine ip zugängig ist auf dem lokalen Netzwerk
+    """
     global ipconfirmed #VON HIER
     ipconfirmed = True
     filllogintext()
     confirmusername("")
+    
         # BIS HIER RAUSNEHMEN WENN WIR DAS RICHTIG LAUFEN LASSEN, das nur weil ip ja nicht aktiv ist
     print("Joa 1")
+    global ip
+    ip = ip1
     font = pygame.font.SysFont('comicsans', 30)
     text_surface = font.render("Lobby Code eingeben:", False, (0,0,0))
     text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2))
@@ -166,11 +213,11 @@ def confirmip(ip):
             if checkConnection(ip, port):
                 print("Erfolgreich verbunden!")
                 connected = True
+                ipvalid = True
             else:
                 print(f"Verbindung fehlgeschlagen. Bitte probiere eine andere IP-Adresse.")
         except Exception as e:
             print(f"Der folgende Fehler ist aufgetreten: {e}\n Bitte versuche es erneut.")
-        ipvalid = False
         if ipvalid:
             return True
             filllogintext()
@@ -186,6 +233,9 @@ global usernameconfirmed
 usernameconfirmed = False
 
 def confirmusername(name):
+    """
+    prüft ob ein username schon besetzt ist, loggt Spieler mit Namen ein
+    """
     print("Joa 3")
     font = pygame.font.SysFont('comicsans', 30)
     text_surface = font.render("Spielernamen eingeben:", False, (0,0,0))
@@ -211,23 +261,46 @@ def confirmusername(name):
         #usernameconfirmed = answer
         #if usernameconfirmed:
         #   filllogintext()
-        #   onstatechange(windowtypes.lobby)
+        #   setstate(windowtypes.lobby)
         filllogintext()
         global usernameconfirmed
         usernameconfirmed = True
-        onstatechange(windowtypes.lobby)     
-def filllogintext():
-    fill_rect1 = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-30 , 500, 60)
-    fill_rect2 = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2 + 100, 500, 120)
-    pygame.draw.rect(screen, (255,255,255), fill_rect1)
-    pygame.draw.rect(screen, (255,255,255), fill_rect2)
+        setstate(windowtypes.lobby)     
 
 def onquit():
+    """
+    beendet die Verbindung zum Server vor dem Beenden des Programms um nicht den Server zu Crashen
+    """
     #s.close()
     pass
 
-onstatechange(windowtypes.login)
+setstate(windowtypes.login)
 while True: 
+    message = {
+    "type":"EmptyPing",
+    "data":"",
+    }
+
+    global mailbox
+    mailbox = getMailbox()
+
+    if mailbox != []:
+        b_mailbox = json.dumps(mailbox[0]).encode('utf-8')
+        s.send(b_mailbox)
+        mailbox.pop
+        print("Mailbox an Server gesendet")
+    else: 
+        b_message = json.dumps(message).encode('utf-8')
+        s.send(b_message)
+        print("EmptyPing an Server gesendet")
+
+    b_answer = s.recv(1024)
+    print("[{}] {}".format(ip, b_answer.decode()))
+    print("")
+
+    computePing(json.loads(b_answer))
+    
+    sleep(1)
     for event in pygame.event.get(): 
   
       # if user types QUIT then the screen will close 
