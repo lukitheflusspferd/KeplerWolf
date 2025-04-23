@@ -189,12 +189,7 @@ def confirmip(ip1):
     """
     überprüft, ob eine ip zugängig ist auf dem lokalen Netzwerk
     """
-    global ipconfirmed #VON HIER
-    ipconfirmed = True
-    filllogintext()
-    confirmusername("")
-    
-        # BIS HIER RAUSNEHMEN WENN WIR DAS RICHTIG LAUFEN LASSEN, das nur weil ip ja nicht aktiv ist
+    global ipconfirmed
     print("Joa 1")
     global ip
     ip = ip1
@@ -213,12 +208,12 @@ def confirmip(ip1):
             if checkConnection(ip, port):
                 print("Erfolgreich verbunden!")
                 connected = True
-                ipvalid = True
+                ipconfirmed = True
             else:
                 print(f"Verbindung fehlgeschlagen. Bitte probiere eine andere IP-Adresse.")
         except Exception as e:
             print(f"Der folgende Fehler ist aufgetreten: {e}\n Bitte versuche es erneut.")
-        if ipvalid:
+        if ipconfirmed:
             return True
             filllogintext()
             confirmusername("")
@@ -250,57 +245,55 @@ def confirmusername(name):
             "type":"UsernamePing",
             "data": name
         }
-        b_message = json.dumps(message).encode('utf-8')     #BEIM AUSFÜHREN KOMMENTARE WEGMACHEN, NUR FÜR TESTEN
-        #s.send(b_message)
+        b_message = json.dumps(message).encode('utf-8')    
+        s.send(b_message)
         print("Name an Server gesendet")
-        #b_answer = s.recv(1024)
-        #print("[{}] {}".format(ip, b_answer.decode("utf-8")))
-        #print("")
-        #answer = eval(b_answer.decode())
-        #global usernameconfirmed
-        #usernameconfirmed = answer
-        #if usernameconfirmed:
-        #   filllogintext()
-        #   setstate(windowtypes.lobby)
-        filllogintext()
+        b_answer = s.recv(1024)
+        print("[{}] {}".format(ip, b_answer.decode("utf-8")))
+        print("")
+        answer = eval(b_answer.decode())
         global usernameconfirmed
-        usernameconfirmed = True
-        setstate(windowtypes.lobby)     
+        usernameconfirmed = answer
+        if usernameconfirmed:
+           filllogintext()
+           setstate(windowtypes.lobby)
+         
 
 def onquit():
     """
     beendet die Verbindung zum Server vor dem Beenden des Programms um nicht den Server zu Crashen
     """
-    #s.close()
+    s.close()
     pass
 
 setstate(windowtypes.login)
 while True: 
-    message = {
-    "type":"EmptyPing",
-    "data":"",
-    }
+    if ipconfirmed:
+        message = {
+        "type":"EmptyPing",
+        "data":"",
+        }
 
-    global mailbox
-    mailbox = getMailbox()
+        global mailbox
+        mailbox = getMailbox()
 
-    if mailbox != []:
-        b_mailbox = json.dumps(mailbox[0]).encode('utf-8')
-        s.send(b_mailbox)
-        mailbox.pop
-        print("Mailbox an Server gesendet")
-    else: 
-        b_message = json.dumps(message).encode('utf-8')
-        s.send(b_message)
-        print("EmptyPing an Server gesendet")
+        if mailbox != []:
+            b_mailbox = json.dumps(mailbox[0]).encode('utf-8')
+            s.send(b_mailbox)
+            mailbox.pop
+            print("Mailbox an Server gesendet")
+        else: 
+            b_message = json.dumps(message).encode('utf-8')
+            s.send(b_message)
+            print("EmptyPing an Server gesendet")
 
-    b_answer = s.recv(1024)
-    print("[{}] {}".format(ip, b_answer.decode()))
-    print("")
+        b_answer = s.recv(1024)
+        print("[{}] {}".format(ip, b_answer.decode()))
+        print("")
 
-    computePing(json.loads(b_answer))
-    
-    sleep(1)
+        computePing(json.loads(b_answer))
+        
+        sleep(1)
     for event in pygame.event.get(): 
   
       # if user types QUIT then the screen will close 
