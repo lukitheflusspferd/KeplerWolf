@@ -9,6 +9,7 @@ import socket
 import json
 from time import sleep
 from ClientData import computePing, validName, getMailbox, setMailbox
+from Ping import fromData, toData
 pygame.init() 
 
 
@@ -241,10 +242,7 @@ def confirmusername(name):
         print("Joa 4")
         # Spielernamen abfragen solange der Server diesen noch nicht validiert hat (z.B. bei Dopplung eines Namens)
 
-        message = {
-            "type":"UsernamePing",
-            "data": name
-        }
+        message = fromData("UsernamePing", str(name))
         b_message = json.dumps(message).encode('utf-8')    
         s.send(b_message)
         print("Name an Server gesendet")
@@ -268,12 +266,10 @@ def onquit():
 
 setstate(windowtypes.login)
 while True: 
-    if ipconfirmed:
-        message = {
-        "type":"EmptyPing",
-        "data":"",
-        }
+    
+    message = fromData("EmptyPing", "")
 
+    if ipconfirmed:
         global mailbox
         mailbox = getMailbox()
 
@@ -288,10 +284,11 @@ while True:
             print("EmptyPing an Server gesendet")
 
         b_answer = s.recv(1024)
+        print(b_answer.decode())
         print("[{}] {}".format(ip, b_answer.decode()))
         print("")
 
-        computePing(json.loads(b_answer))
+        computePing(json.loads(b_answer.decode("utf-8")))
         
         sleep(1)
     for event in pygame.event.get(): 
@@ -322,7 +319,10 @@ while True:
                     print(user_text)
                     if windowstate == windowtypes.login:
                         if not ipconfirmed and not ishosting:
-                            confirmip(user_text)
+                            if confirmip(user_text):
+                                filllogintext()
+                                confirmusername("")
+                                user_text = ""
                         elif not usernameconfirmed:
                             confirmusername(user_text)
                     elif windowstate == windowtypes.game:
