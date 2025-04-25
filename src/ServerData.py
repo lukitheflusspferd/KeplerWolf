@@ -18,6 +18,7 @@ ipToPlayerID["10.4.14.23"] = "p3"
 def resolveIPtoPlayerID(ip : str) -> str:
     return ipToPlayerID.get(ip)
 
+# später
 playerDatabase = {
     # "p1" : Player("Spieler 1", "Villager()"),
     "p2" : Player("Spieler 2", "Villager()"),
@@ -53,6 +54,7 @@ mailbox["luki"].append( {
 
 ServerState = "PreGame"
 
+# später
 def getServerState():
     global ServerState
     return ServerState
