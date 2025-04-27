@@ -11,7 +11,7 @@ EMPTYPING = Ping.fromData("EmptyPing", "")
 
 class ServerGame():
     def __init__(self):
-        self.__playerNamesPreGame = []
+        self.__playerNamesPreGame = ["p1", "p2"]
         self.__ipToPlayerName = dict()
         self.__mailbox = dict()
         
@@ -22,10 +22,29 @@ class ServerGame():
     
     ### Verwaltung von Spielernamen ###
     
-    def __resolveIPtoPlayerName(self, ip : str) -> str:
+    def __resolveIPtoPlayerName(self, ip : str) -> str | None:
+        """
+        Gibt für eine IP den Spielername oder, falls nicht existent, None zurück
+
+        Args:
+            ip (str): Ip-Adresse
+
+        Returns:
+              str | None: Spielername oder None
+        """
         return self.__ipToPlayerName.get(ip)
     
     def __isPlayernameValid(self, ip : str, playername : str):
+        """
+        Prüft, ob ein Spielername bereits vorhanden ist
+
+        Args:
+            ip (str): Ip-Adresse der Anfrage
+            playername (str): ângefragter Name
+
+        Returns:
+            tuple: (bool valide, Fehlernachricht)
+        """
         if playername in self.__playerNamesPreGame:
             return (False, "doppelt")
         # TODO: check for politeness
@@ -33,6 +52,9 @@ class ServerGame():
         print(f"Spieler mit dem Namen [{playername}] zur Liste der Spielernamen vor dem Spiel hinzugefügt.\n ")
         self.__ipToPlayerName[ip] = playername
         self.__mailbox[playername] = []
+        
+        self.__broadcastPing(Ping.fromData("NewLobbyPing", self.__playerNamesPreGame), [])
+        
         return (True, "")
     
     
@@ -60,13 +82,22 @@ class ServerGame():
                 vote = dict()
                 vote["type"] = "mayor"
                 vote["players"] = self.__playerNamesPreGame
-                for player in self.__mailbox.keys():
-                    if player == "console": continue
-                    self.__mailbox[player].append(Ping.fromData("VotePing", vote))
+                self.__broadcastPing(Ping.fromData("VotePing", vote), [])
                     
         return EMPTYPING
     
-    def __computePlayernamePing(self, ip, name):
+    def __computePlayernamePing(self, ip: str, name: str) -> dict:
+        """
+        Prüft von Spielern angefragte Namen und generiert den Antwortping
+
+        Args:
+            ip (str): Quell-IP der Anfrage
+            name (str): angefragter Name
+
+        Returns:
+            dict: Antwortping
+        """
+        
         valid, errorMsg = self.__isPlayernameValid(ip, name)
         data = {
                 "valid": "True" if valid else "False",
@@ -86,6 +117,11 @@ class ServerGame():
             dict: neuer Ping
         """
         
+        if self.__serverState == "PreGame":
+            print("\nPing von IP [{}] mit dem folgenden Inhalt empfangen: \n {}".format(ip, data))
+        else:
+            print("\nPing von Spieler [{}] an IP [{}] mit dem folgenden Inhalt empfangen: \n {}".format(self.__resolveIPtoPlayerName(ip), ip, data))
+
         playerID = self.__resolveIPtoPlayerName(ip)
 
         pingType, pingData = Ping.toData(data)
@@ -94,7 +130,7 @@ class ServerGame():
             case 'EmptyPing':
                 pass
             case 'ConsoleInitPing':
-                self.__ipToPlayerID[ip] = "console"
+                self.__ipToPlayerName[ip] = "console"
                 playerID = "console"
                 print("Konsole verbunden!")
             case 'ConsoleCommandPing':
@@ -115,24 +151,57 @@ class ServerGame():
         else: 
             return EMPTYPING
     
-    
-    
-    
-    
-    def computeNightVoteCycle(playerDatabase, nightCounter):
-        rolesToPlayers = dict()
-        print(playerDatabase)
-        for role in ROLES_LIST:
-            rolesToPlayers[role.getname] = []
-        for player, data in playerDatabase:
-            print(data.getrole())
-            rolesToPlayers[data.getrole().getname()].append(player.getname)
+    def __broadcastPing(self, ping : dict, targetPlayers: list, exceptPlayers: list = []):
+        """
+        Sendet einen Ping an alle angegebenen Spieler (alle wenn leere Liste), außer die, die in der Ausnahmenliste übergeben werden
 
-        nightVoteCycle = []
+        Args:
+            ping (dict): Ping, bereits verarbeitet mit Ping.fromData
+            targetPlayers (list): Liste von Spielernamen, wenn leer werden alle bekannten als Ziel angenommen
+            exceptPlayers (list, optional): Spieler, an welche nicht gesendet werden soll. Nur sinnvoll, wenn an alle gesendet wird. Defaults to [].
+        """
+        if targetPlayers == []:
+            for player in self.__mailbox.keys():
+                if player == "console": continue
+                if player in exceptPlayers: continue
+                self.__mailbox[player].append(ping)
+        else:
+            for player in targetPlayers:
+                self.__mailbox[player].append(ping)
+        
+        print(self.__mailbox)
+        
+    
+    
+    #def computeNightVoteCycle(playerDatabase, nightCounter):
+    #    rolesToPlayers = dict()
+    #    print(playerDatabase)
+    #    for role in ROLES_LIST:
+    #        rolesToPlayers[role.getname] = []
+    #    for player, data in playerDatabase:
+    #        print(data.getrole())
+    #        rolesToPlayers[data.getrole().getname()].append(player.getname)
+    #
+    #    nightVoteCycle = []
+    #
+    #    if rolesToPlayers["werewolf"]:
+    #        nightVoteCycle.append(VoteState("werewolf", rolesToPlayers["werewolf"]))
 
-        if rolesToPlayers["werewolf"]:
-            nightVoteCycle.append(VoteState("werewolf", rolesToPlayers["werewolf"]))
 
+
+# Initialisierung des Servers
+Server = ServerGame()
+
+
+def computePing(ip : str, ping : dict):
+    """
+    Ping an den Server übergeben
+
+    Args:
+        ip (str): Die Quell-IP des Pings
+        ping (dict): Der emfangene Ping
+    """
+    return Server.computePing(ip, ping)
 
 #class VoteState():
 #    def __init__(self, voteType : str, players):

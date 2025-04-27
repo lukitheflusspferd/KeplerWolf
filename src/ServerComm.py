@@ -4,7 +4,8 @@ import selectors
 import socket
 import time
 
-from ServerData import computePing, resolveIPtoPlayerID, getServerState
+# from ServerData import computePing, resolveIPtoPlayerID, getServerState
+import ServerState
 
 # siehe https://openbook.rheinwerk-verlag.de/python/34_001.html
 
@@ -33,19 +34,6 @@ def accept(selector, sock):
     connection.setblocking(False)
     selector.register(connection, selectors.EVENT_READ, ping)
 
-def message_legacy(selector, client):
-    """
-    Ping von Client empfangen und beantworten
-    """
-    nachricht = client.recv(1024)
-    ip = client.getpeername()[0]
-    if nachricht:
-        print("[{}] {}".format(ip, nachricht.decode()))
-        client.send(nachricht)
-    else:
-        print("+++ Verbindung zu {} beendet".format(ip))
-        selector.unregister(client)
-        client.close()
 
 def ping(selector, client):
     """
@@ -55,14 +43,15 @@ def ping(selector, client):
     ip = client.getpeername()[0]
     # Wenn die Nachricht einen Inhalt hat
     if message:
-        if getServerState() == "PreGame":
-            print("\nGot Ping from IP [{}] with the following data: \n {}".format(ip, message.decode()))
-        else:
-            print("\nGot Ping from player with ID [{}] at IP [{}] with the following data: \n {}".format(resolveIPtoPlayerID(ip), ip, message.decode()))
+        # if getServerState() == "PreGame":
+        #     print("\nGot Ping from IP [{}] with the following data: \n {}".format(ip, message.decode()))
+        # else:
+        #     print("\nGot Ping from player with ID [{}] at IP [{}] with the following data: \n {}".format(resolveIPtoPlayerID(ip), ip, message.decode()))
 
-        pingData = json.loads(message)
+        pingData = json.loads(message.decode())
         
-        answer = computePing(ip, pingData)
+        # answer = computePing(ip, pingData)
+        answer = ServerState.computePing(ip, pingData)
 
         encodedPingBackMessage = json.dumps(answer).encode('utf-8')
 
