@@ -6,6 +6,7 @@ import time
 
 # from ServerData import computePing, resolveIPtoPlayerID, getServerState
 import ServerState
+import IPencodedecode
 
 # siehe https://openbook.rheinwerk-verlag.de/python/34_001.html
 
@@ -13,11 +14,12 @@ PORT = 65432
 
 
 def startServer():
-    print("Starting server...")
+    print("Server wird gestartet...")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("", PORT))
     ip = socket.gethostbyname(socket.gethostname())
     print(f"Server listening on IP [{ip}] at port [{PORT}]")
+    print("Lobbycode:", IPencodedecode.encodeIP(ip))
     server.setblocking(False)
     server.listen(1)
 
