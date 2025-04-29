@@ -12,7 +12,7 @@ class grouptypes(Enum):
     alpha = 6
 
 class Role():
-    def __init__(self, name, description, group, hp_start):
+    def __init__(self, name, description, group, hp_start, id, maxPlayerCount : int = 999999):
         """
         Konstruktoraufruf für Role-Klasse
         """
@@ -20,6 +20,8 @@ class Role():
         self.__description = description
         self.__group = group
         self.__hp_start = hp_start
+        self.__id = id
+        self.__maxPlayerCount = maxPlayerCount
 
     # def __repr__(self):
     #     return (f'(name="{self.__name}", description="{self.__description}", '
@@ -37,14 +39,20 @@ class Role():
     def gethp_start(self):
         return self.__hp_start
 
+    def getId(self):
+        return self.__id
+    
+    def getMaxPlayerCount(self):
+        return self.__maxPlayerCount
+    
     def setgroup(self, group):
         self.__group = group
     
     def __str__(self):
-        group_type = "gut" if self.__group == grouptypes.villager else \
-                     "böse" if self.__group == grouptypes.werewolf else \
-                     "unabhängig"
-        return f"{self.__name}: {self.__description} und ist {group_type}."
+        group_type = "Gut" if self.__group == grouptypes.villager else \
+                     "Böse" if self.__group == grouptypes.werewolf else \
+                     "Spielt allein"
+        return f"{self.__name}: {self.__description} {group_type}."
 
     def action(self, player, target=None):
         raise NotImplementedError('Diese Methode sollte in Unterklassen implementiert werden.')

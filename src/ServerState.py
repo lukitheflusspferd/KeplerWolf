@@ -5,7 +5,7 @@ import Ping
 #        self.__onEnter = onEnter
 #        self.__onPing = onPing
 
-from Roles import ROLES_LIST
+from Roles import SPECIAL_ROLES_LIST
 
 EMPTYPING = Ping.fromData("EmptyPing", "")
 

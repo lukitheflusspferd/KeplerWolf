@@ -9,7 +9,7 @@ class Armor(Role):
     Classe des Armors, welcher 2 Spieler verlieben kann.
     """
     def __init__(self, hasCoupled = False, awakens = True):
-        super().__init__('Armor', 'Kann zwei Spieler verlieben. Wird der eine umgebracht, stirbt auch der andere.', grouptypes.villager, 1)
+        super().__init__('Armor', 'Kann zwei Spieler verlieben. Wird der eine umgebracht, stirbt auch der andere.', grouptypes.villager, 1, "armor", 1)
         self.__hasCoupled = hasCoupled
         self.__awakens = awakens
 
@@ -28,7 +28,7 @@ class Seer(Role):
     Klasse des Sehers, welcher eine Rolle pro Nacht anschauen kann.
     """
     def __init__(self):
-        super().__init__('Seher', 'Kann Rollen anschauen', grouptypes.villager, 1)
+        super().__init__('Seher', 'Kann jede Nacht die Rolle eines Spielers anschauen.', grouptypes.villager, 1, "seer", 1)
 
     def __repr__(self):
         return "Seer()"
@@ -42,7 +42,7 @@ class Littlegirl(Role):
     Klasse des Blinzelmädchens, welches mit einem Risiko herausfinden kann ob 2 spieler werwölfe sind oder nicht.
     """
     def __init__(self):
-        super().__init__('Blinzelmädchen', 'Kann in der Nacht eine Rolle herausfinden, aber mit einem Risiko', grouptypes.villager, 1)
+        super().__init__('Blinzelmädchen', 'Kann in der Nacht die Rolle zweier Spieler anschauen, aber mit einem Risiko dabei erwischt zu werden.', grouptypes.villager, 1, "littlegirl", 1)
 
     def __repr__(self):
         return "Littlegirl()"
@@ -63,7 +63,7 @@ class Hunter(Role):
     Klasse des Jägers, welche einen Spieler nach dem Tod erschießen kann(irl).
     """
     def __init__(self):
-        super().__init__('Jäger', 'Nimmt eine Person in den Tod mit', grouptypes.villager, 1)
+        super().__init__('Jäger', 'Kann eine Person in den Tod mitreißen.', grouptypes.villager, 1, "hunter", 1)
         
     def __repr__(self):
         return "Hunter()"
@@ -79,7 +79,7 @@ class Tree(Role):
     Klasse des Baums, welcher 2 HP hat, wenn er stirbt werden alle Rollen außer die Werwölfe deaktiviert.
     """
     def __init__(self):
-        super().__init__('Baum', 'Hat 2 HP, wenn er stirbt werden alle Rollen deaktiviert', grouptypes.villager, 2)
+        super().__init__('Baum', 'Hat beim Tod durch Werwolf ein zweites Leben, wenn er stirbt werden alle guten Rollen deaktiviert', grouptypes.villager, 2, "tree", 1)
 
     def __repr__(self):
         return "Tree()"
@@ -96,7 +96,7 @@ class Alpha(Role):
     Klasse des Alphawolfes, welcher mit den Werwölfen und alleine töten kann, er muss alleine gewinnen.
     """
     def __init__(self):
-        super().__init__('Alphawolf', 'Wacht jede 2. Nacht einzeln auf und muss alleine gewinnen', grouptypes.alpha, 1)
+        super().__init__('Alphawolf', 'Wacht jede 2. Nacht einzeln auf und tötet einen Spieler. Muss alleine gewinnen.', grouptypes.alpha, 1, "alpha", 1)
 
     def __repr__(self):
         return "Alpha()"
@@ -116,7 +116,7 @@ class Werewolf(Role):
     Klasse des Werwolfes, welcher mit anderen Werwölfen Gegner in der Nacht töten kann
     """
     def __init__(self):
-        super().__init__('Werwolf', 'kann mit anderen Werwölfen Gegner in der Nacht töten', grouptypes.werewolf, 2 )
+        super().__init__('Werwolf', 'Kann zusammen mit den anderen Werwölfen in der Nacht einen anderen Spieler töten.', grouptypes.werewolf, 2, "werewolf")
 
     def __repr__(self):
         return "Werewolf()"
@@ -133,7 +133,7 @@ class Villager(Role):
     Klasse des Villagers, er kann nichts.
     """
     def __init__(self):
-        super().__init__('Dorfbewohner', 'Besitzt keine besonderen Fähigkeiten.', grouptypes.villager, 1 )
+        super().__init__('Dorfbewohner', 'Besitzt keine besonderen Fähigkeiten.', grouptypes.villager, 1, "villager")
     
     def __repr__(self):
         return "Villager()"
@@ -143,7 +143,7 @@ class Witch(Role):
     Klasse der Hexe, welche ein mal pro Spiel einen anderen Spieler heilen oder töten kann.
     """
     def __init__(self, hasHealed = False, hasKilled = False, awakens = True):
-        super().__init__('Hexe', 'kann je 1x töten und heilen im ganzen Spiel, in der Nacht', grouptypes.villager, 1 )
+        super().__init__('Hexe', 'kann je 1x töten und heilen im ganzen Spiel, in der Nacht', grouptypes.villager, 1, "witch", 1)
         self.__hasHealed = hasHealed
         self.__hasKilled = hasKilled
         self.__awakens = awakens
@@ -177,7 +177,7 @@ class Witch(Role):
     # wenn has_killed and has_healed == True: hexe erwacht nicht mehr
 """
 
-ROLES_LIST = [
+SPECIAL_ROLES_LIST = [
     Armor(),
     Seer(),
     Littlegirl(),
@@ -186,8 +186,7 @@ ROLES_LIST = [
     Alpha(),
     Werewolf(),
     Witch(),
-    Villager()
 ]
 """
-    Liste der Rollen, welche im Spiel vorkommen können, ohne die Dorfbewohner.
+    Liste der besonderen Rollen, welche im Spiel vorkommen können, ohne die Dorfbewohner.
 """

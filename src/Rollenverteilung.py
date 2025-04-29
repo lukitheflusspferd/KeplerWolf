@@ -1,4 +1,58 @@
-import random, ast
+import random
+
+from Roles import SPECIAL_ROLES_LIST
+
+def askForRolesCount(players : list):
+    """
+    Fragt in der Konsole für jede Rolle nach deren Anzahl und gibt eine Liste zurück
+    
+    Args:
+        players (list): Liste der Spielernamen (z. B. ["Alice", "Bob", "Charlie"])
+        rolesConfig (dict(str -> int)): Dictionary mit Rollen und deren Anzahl (z. B. {'Werewolf':2, 'Witch':1})
+    
+    Returns:
+        dict: Dictionary mit Spielernamen als Schlüssel und Rollen als Werte
+              oder eine Fehlermeldung (str), falls nicht genug Spieler vorhanden sind.
+    """
+    
+    print("Angemeldete Spieler:", players)
+    print(f"""Es gibt {len(players)} Spieler. Bitte gib für jede Rolle die Anzahl an Spielern an, welche diese Rolle bekommen sollen.
+          Die restlichen Spieler bekommen die Rolle "Dorfbewohner".\n""")
+    rolesCount = dict()
+    
+    print("Es gibt die folgenden Rollen:")
+    # Für jede Sonderrolle
+    for role in SPECIAL_ROLES_LIST:
+        print(str(role))
+    
+    print()
+    
+    for role in SPECIAL_ROLES_LIST:
+        valid = False
+        max = role.getMaxPlayerCount()
+        while not valid:
+            try:
+                n = int(input(f"Bitte gib ein, wie viele Spieler die Rolle {role.getname()} bekommen sollen: "))
+                if n >= 0: 
+                    if max >= n:
+                        rolesCount[role.getId()] = n
+                        valid = True
+                    else:
+                        raise Exception("zu viel")
+                else:
+                    raise Exception("negativ")
+            except ValueError:
+                print("Bitte gib eine gültige Zahl ein!")
+            except Exception as e:
+                if e.args == ("negativ",):
+                    print("Bitte gib eine Zahl größergleich 0 ein!")
+                elif e.args == ("zu viel",):
+                    print(f"Für diese Rolle  maximal {max} Spieler zulässig.")
+                else:
+                    print("Es ist ein Fehler aufgetreten. Bitte versuche es erneut!")
+                    print(e)
+    
+    return rolesCount
 
 def assignRoles(players : list, rolesConfig : dict):
     """
@@ -26,7 +80,7 @@ def assignRoles(players : list, rolesConfig : dict):
         roles.extend([role] * count)
     
     # Auffüllen der Rollenliste mit "Dorfbewohner" für die restlichen Spieler
-    roles.extend(["Villager"] * (len(players) - len(roles)))
+    roles.extend(["villager"] * (len(players) - len(roles)))
     
     # Rollen zufällig mischen
     random.shuffle(roles)
@@ -64,3 +118,5 @@ if __name__ == "__main__":
 
     
 # print(assignRoles(players= ast.literal_eval(input('player als liste  ')),roles_config=ast.literal_eval(input('rollen als dict  '))))
+
+askForRolesCount(["p1", "p2", "p3", "p4", "p5", "p6", "p7"])

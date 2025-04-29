@@ -4,8 +4,7 @@ import socket
 # from time import sleep
 
 import Ping
-from Rollenverteilung import assignRoles
-from Roles import ROLES_LIST
+import Rollenverteilung
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -19,24 +18,12 @@ def computeCommand(cmd):
     match cmd:
         case "start game":
             return Ping.fromData("ConsoleCommandPing", "gameStartCMD")
-        #    return {
-        #    "type": "ConsoleCommandPing",
-        #    "data": "gameStartCMD"
-        #}
         case "trigger vote":
             return Ping.fromData("ConsoleCommandPing", "voteTrigger")
-        #    return {
-        #    "type": "ConsoleCommandPing",
-        #    "data": "voteTrigger"
-        #}
         case _:
             print("Fehler: Unbekannter Befehl")
             return Ping.fromData("EmptyPing", "")
-            #return {
-            #    "type": "EmptyPing",
-            #    "data": ""
-            #}
-    
+
 def computePing(data: dict):
     """
     Verarbeitung der Antwort des Servers
@@ -53,21 +40,8 @@ def computePing(data: dict):
         case 'ConsoleError':
             print("Fehler:", pingData)
         case 'ConsoleGameInit':
-            players = pingData
-            print("Angemeldete Spieler:", players)
-            print("Es gibt", len(players), """Spieler. Bitte gib für jede Rolle die Anzahl an Spielern an, welche diese Rolle bekommen sollen.
-                  Die restlichen Spieler bekommen die Rolle "Dorfbewohner".\n""")
+            return Rollenverteilung.askForRolesCount(pingData)
             
-            roles = assignRoles(players, {
-                'Werewolf': 2,
-                'Witch': 1,
-                'Seer': 0,
-                'Hunter': 0,
-                'Littlegirl': 0,
-                'Alpha': 0,
-                'Tree': 0
-            })
-            print("Rollenverteilung:", roles)
         case _:
             print("Fehler: Unbekannter Ping-Typ:", pingType)
 
@@ -105,11 +79,6 @@ while not connected:
             print(f"Verbindung fehlgeschlagen. Bitte probiere eine andere IP-Adresse.")
     except Exception as e:
         print(f"Der folgende Fehler ist aufgetreten: {e}\n Bitte versuche es erneut.")
-
-#initMessage = {
-#    "type": "ConsoleInitPing",
-#    "data": "",
-#}
 
 initMessage = json.dumps(Ping.fromData("ConsoleInitPing", "")).encode('utf-8')
 
