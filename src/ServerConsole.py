@@ -40,7 +40,7 @@ def computePing(data: dict):
         case 'ConsoleError':
             print("Fehler:", pingData)
         case 'ConsoleGameInit':
-            return Rollenverteilung.askForRolesCount(pingData)
+            return Rollenverteilung.getRolesCount(pingData)
             
         case _:
             print("Fehler: Unbekannter Ping-Typ:", pingType)

@@ -1,8 +1,10 @@
 import random
 
+import Ping
 from Roles import SPECIAL_ROLES_LIST
 
-def askForRolesCount(players : list):
+
+def askForRolesCount(players : list, firstTry : bool = False):
     """
     Fragt in der Konsole für jede Rolle nach deren Anzahl und gibt eine Liste zurück
     
@@ -20,12 +22,13 @@ def askForRolesCount(players : list):
           Die restlichen Spieler bekommen die Rolle "Dorfbewohner".\n""")
     rolesCount = dict()
     
-    print("Es gibt die folgenden Rollen:")
-    # Für jede Sonderrolle
-    for role in SPECIAL_ROLES_LIST:
-        print(str(role))
-    
-    print()
+    if firstTry:
+        print("Es gibt die folgenden Rollen:")
+        # Für jede Sonderrolle
+        for role in SPECIAL_ROLES_LIST:
+            print(str(role))
+
+        print()
     
     for role in SPECIAL_ROLES_LIST:
         valid = False
@@ -72,7 +75,7 @@ def assignRoles(players : list, rolesConfig : dict):
     
     # Überprüfen, ob genug Spieler vorhanden sind
     if specialRolesCount > len(players):
-        return (f"Fehler: Zu wenige Spieler für die angegebenen Rollen. Es werden mindestens {specialRolesCount} Spieler benötigt.")
+        raise Exception("zu viele")
     
     # Erstellen einer Liste aller einzelnen Rollen (z. B. ["Werewolf", "Witch", ...])
     roles = []
@@ -87,6 +90,24 @@ def assignRoles(players : list, rolesConfig : dict):
     
     # Weise jedem Spieler eine Rolle zu (iteriert über die Spielerliste und kombiniert jeden mit zip() mit einer Rolle)
     return {player: role for player, role in zip(players, roles)}
+
+def getRolesCount(players : list) -> dict:
+    valid = False
+    firstTry = True
+    while not valid:
+        rolesCount = askForRolesCount(players, firstTry)
+        firstTry = False
+        try:
+            rolesConfig = assignRoles(players, rolesCount)
+            valid = True
+        except Exception as e:
+            if e.args == ("zu viele",):
+                print("Zu viele Rollen für die verfügbare Spielerzahl. Bitte erneut die Verteilung angeben.")
+            else:
+                print("Es ist ein sonstiger Fehler aufgetreten. Bitte erneut versuchen!")
+    print()
+    print("Rollen erfolgreich verteilt.")
+    return Ping.fromData("ConsoleGameInit", rolesConfig)
 
 '''
 # --- Beispielaufruf ---
@@ -119,4 +140,4 @@ if __name__ == "__main__":
     
 # print(assignRoles(players= ast.literal_eval(input('player als liste  ')),roles_config=ast.literal_eval(input('rollen als dict  '))))
 
-askForRolesCount(["p1", "p2", "p3", "p4", "p5", "p6", "p7"])
+# askForRolesCount(["p1", "p2", "p3", "p4", "p5", "p6", "p7"])

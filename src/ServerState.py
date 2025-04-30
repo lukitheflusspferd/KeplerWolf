@@ -5,19 +5,31 @@ import Ping
 #        self.__onEnter = onEnter
 #        self.__onPing = onPing
 
-from Roles import SPECIAL_ROLES_LIST
+import ClassPlayer
+import Roles
+import ClassPlayer
 
 EMPTYPING = Ping.fromData("EmptyPing", "")
 
 class ServerGame():
     def __init__(self):
-        self.__playerNamesPreGame = ["p1", "p2"]
+        self.__playerNamesPreGame = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
         self.__ipToPlayerName = dict()
         self.__mailbox = dict()
         
         self.__mailbox["console"] = []
+
+        # Für Tests alle vorgegebenen Spieler der Mailbox hinzufügen
+        for name in self.__playerNamesPreGame: self.__mailbox[name] = []
         
         self.__serverState = "PreGame"
+
+        self.__rolesToPlayernames = dict()
+        for role in Roles.SPECIAL_ROLES_LIST:
+            self.__rolesToPlayernames[role.getId()] = []
+        self.__rolesToPlayernames["villager"] = []
+
+        self.__playerDataBase = dict()
     
     
     ### Verwaltung von Spielernamen ###
@@ -140,8 +152,30 @@ class ServerGame():
                     return self.__computePlayernamePing(ip, pingData)
                 else:
                     # TODO: Dem Spieler die aktuellen Daten senden, da davon auzugehen ist, dass er dem Spiel gerejoined ist
-                    #raise Exception(f"Got [UsernamePing] from IP [{ip}], but the game has already been started.")
                     print(f"Anmeldeversuch von IP [{ip}] fehlgeschlagen. Das Spiel wurde bereits gestartet.")
+                    return Ping.fromData("UsernameValidationPing", {"valid": False, "error":"bereits gestartet"})
+            case 'ConsoleGameInit':
+                for playerName, roleId in pingData.items():
+                    self.__rolesToPlayernames[roleId].append(playerName)
+                    match roleId:
+                        case "armor": role = Roles.Armor()
+                        case "seer": role = Roles.Seer()
+                        case "littlegirl": role = Roles.Littlegirl()
+                        case "hunter": role = Roles.Hunter()
+                        case "tree": role = Roles.Tree()
+                        case "alpha": role = Roles.Alpha()
+                        case "werewolf": role = Roles.Werewolf()
+                        case "villager": role = Roles.Villager()
+                        case "witch": role = Roles.Witch()
+                        case _: 
+                            raise Exception("Dieser Fehler sollte nicht passieren können.")
+                    self.__playerDataBase[playerName] = ClassPlayer.Player(playerName, repr(role))
+                    ping = Ping.fromData("GameStartPing", {"data": repr(role), "players": pingData.keys()})
+                    self.__mailbox[playerName].append(ping)
+
+                print("Datenbank initialisiert. Spiel gestartet.")
+                print(self.__mailbox)
+                self.__serverState = "Game"
             case _:
                 print(f"Ping von {playerID} übersprungen da Typ unbekannt: {pingType}")
                 # raise Exception("Unknown ping Type from IP ["+ip+"]")
