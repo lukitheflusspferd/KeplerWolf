@@ -300,14 +300,15 @@ while True:
                     active = True
                 else: 
                     active = False
-                if Button1.isOver(event.pos):
-                    print("Spiel starten")
-                    setstate(windowtypes.game)
-                elif Button2.isOver(event.pos):
-                    pass
-                    # Hier Code für vorherigen Spielermodel einfügen
-                elif Button3.isOver(event.pos):
-                    pass
+                if windowstate == windowtypes.lobby:
+                    if Button1.isOver(event.pos):
+                        print("Spiel starten")
+                        setstate(windowtypes.game)
+                    elif Button2.isOver(event.pos):
+                        pass
+                        # Hier Code für vorherigen Spielermodel einfügen
+                    elif Button3.isOver(event.pos):
+                        pass
 
             if event.type == pygame.KEYDOWN: 
                 if active:
