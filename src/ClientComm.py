@@ -53,7 +53,9 @@ try:
         #    "data": input('Bitte gib deinen Namen ein:')
         #}
 
-        message = Ping.fromData("UsernamePing", input('Bitte gib deinen Namen ein:'))
+        ownName = input('Bitte gib deinen Namen ein:')
+        
+        message = Ping.fromData("UsernamePing", ownName, ownName)
         
         b_message = json.dumps(message).encode('utf-8')
         s.send(b_message)
@@ -64,7 +66,7 @@ try:
         print("[{}] {}".format(ip, b_answer))
         print("")
         
-        pingType, pingData = Ping.toData(json.loads(b_answer))
+        pingType, pingData, _ = Ping.toData(json.loads(b_answer))
 
         if pingType != "UsernameValidationPing":
             raise
@@ -85,7 +87,7 @@ finally:
 
 try:
     while True:
-        message = Ping.fromData("EmptyPing", "")
+        message = Ping.fromData("EmptyPing", "", ownName)
 
         global mailbox
         mailbox = getMailbox()
@@ -104,7 +106,7 @@ try:
         print("[Server] {}".format(b_answer.decode()))
         print("")
 
-        computePing(json.loads(b_answer))
+        computePing(json.loads(b_answer), ownName)
         
         sleep(1)
 finally:

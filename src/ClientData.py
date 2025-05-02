@@ -15,10 +15,10 @@ def setMailbox(newMailbox):
     global mailbox
     mailbox = newMailbox
 
-def computePing(message: dict):
+def computePing(message: dict, ownName):
     global mailbox
     
-    messageType, messageData = Ping.toData(message)
+    messageType, messageData, _ = Ping.toData(message)
     # print("PingTyp:", messageType, "PingData:", messageData)
     
     if messageType == "InitPing":
@@ -41,7 +41,7 @@ def computePing(message: dict):
         voteType = messageData["type"]
         players = messageData["players"]
 
-        vote = Voting(players, voteType)
+        vote = Voting(players, voteType, ownName)
         mailbox.append(vote)
         # print(mailbox)
 

@@ -12,6 +12,8 @@ from ClientData import computePing, validName, getMailbox, setMailbox
 from Ping import fromData, toData
 pygame.init() 
 global answer 
+global ownName
+ownName = None
 
 class windowtypes(Enum):
     login = 1
@@ -238,6 +240,7 @@ def confirmusername(name):
     """
     prüft ob ein username schon besetzt ist, loggt Spieler mit Namen ein
     """
+    global ownName
     print("Joa 3")
     font = pygame.font.SysFont('comicsans', 30)
     text_surface = font.render("Spielernamen eingeben:", False, (0,0,0))
@@ -248,7 +251,7 @@ def confirmusername(name):
         print("Joa 4")
         # Spielernamen abfragen solange der Server diesen noch nicht validiert hat (z.B. bei Dopplung eines Namens)
 
-        message = fromData("UsernamePing", str(name))
+        message = fromData("UsernamePing", str(name), ownName)
         b_message = json.dumps(message).encode('utf-8')    
         s.send(b_message)
         print("Name an Server gesendet")
@@ -256,11 +259,12 @@ def confirmusername(name):
         print("[{}] {}".format(ip, b_answer.decode("utf-8")))
         print("")
         answer = json.loads(b_answer.decode("utf-8"))
-        answertype, answer = toData(answer)
+        answertype, answer, _ = toData(answer)
         global usernameconfirmed
         if answertype == "UsernameValidationPing":
             if answer["valid"] == "True":
                 usernameconfirmed = True
+                ownName = name
             elif answer["error"] == "doppelt":
                 font = pygame.font.SysFont('comicsans', 20)
                 text_surface = font.render("Spielername schon verwendet, gebe einen anderen ein.", False, (255,0,0))
@@ -304,7 +308,7 @@ ButtonShowRoleonscreen = False
 setstate(windowtypes.login)
 while True: 
     
-    message = fromData("EmptyPing", "")
+    message = fromData("EmptyPing", "", ownName)
 
     if ipconfirmed:
         global mailbox
@@ -325,9 +329,9 @@ while True:
         print("[{}] {}".format(ip, b_answer.decode()))
         print("")
         answer = json.loads(b_answer.decode("utf-8"))
-        computePing(json.loads(b_answer.decode("utf-8")))
+        computePing(json.loads(b_answer.decode("utf-8")), ownName)
         if windowstate == windowtypes.lobby:
-            pingtype, playerlist = toData(answer)
+            pingtype, playerlist, _ = toData(answer)
             updatePlayerList(playerlist)
         sleep(1)
     for event in pygame.event.get(): 

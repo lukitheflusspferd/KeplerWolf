@@ -107,7 +107,7 @@ def getRolesCount(players : list) -> dict:
                 print("Es ist ein sonstiger Fehler aufgetreten. Bitte erneut versuchen!")
     print()
     print("Rollen erfolgreich verteilt.")
-    return Ping.fromData("ConsoleGameInit", rolesConfig)
+    return Ping.fromData("ConsoleGameInit", rolesConfig, "console")
 
 '''
 # --- Beispielaufruf ---

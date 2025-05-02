@@ -3,7 +3,7 @@ import Ping
 from Roles import *
 # from ServerState import computeNightVoteCycle
 
-EMPTYPING = Ping.fromData("EmptyPing", "")
+EMPTYPING = Ping.fromData("EmptyPing", "", "server")
 
 playerNamesPreGame = ["p1"]
 

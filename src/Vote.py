@@ -10,7 +10,7 @@ class announcementtypes(Enum):
     lovers = 5
     hunter = 6
 
-def Voting(players, type):
+def Voting(players, type, ownName):
     print("Voting wird ausgeführt")
     
     if type == "werewolf": 
@@ -45,7 +45,7 @@ def Voting(players, type):
     #    "data": vote
     #}
     #return votePing
-    return Ping.fromData("VoteAnswerPing", vote)
+    return Ping.fromData("VoteAnswerPing", vote, ownName)
 
 def Nominate(players, type):
     global mailbox

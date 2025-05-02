@@ -9,12 +9,12 @@ import ClassPlayer
 import Roles
 import ClassPlayer
 
-EMPTYPING = Ping.fromData("EmptyPing", "")
+EMPTYPING = Ping.fromData("EmptyPing", "", "server")
 
 class ServerGame():
     def __init__(self):
         self.__playerNamesPreGame = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
-        self.__ipToPlayerName = dict()
+        self.__consoleIP = None
         self.__mailbox = dict()
         
         self.__mailbox["console"] = []
@@ -34,18 +34,6 @@ class ServerGame():
     
     ### Verwaltung von Spielernamen ###
     
-    def __resolveIPtoPlayerName(self, ip : str) -> str | None:
-        """
-        Gibt für eine IP den Spielername oder, falls nicht existent, None zurück
-
-        Args:
-            ip (str): Ip-Adresse
-
-        Returns:
-              str | None: Spielername oder None
-        """
-        return self.__ipToPlayerName.get(ip)
-    
     def __isPlayernameValid(self, ip : str, playername : str):
         """
         Prüft, ob ein Spielername bereits vorhanden ist
@@ -62,10 +50,9 @@ class ServerGame():
         # TODO: check for politeness
         self.__playerNamesPreGame.append(playername)
         print(f"Spieler mit dem Namen [{playername}] zur Liste der Spielernamen vor dem Spiel hinzugefügt.\n ")
-        self.__ipToPlayerName[ip] = playername
         self.__mailbox[playername] = []
         
-        self.__broadcastPing(Ping.fromData("NewLobbyPing", self.__playerNamesPreGame), [])
+        self.__broadcastPing(Ping.fromData("NewLobbyPing", self.__playerNamesPreGame, "server"), [])
         
         return (True, "")
     
@@ -83,18 +70,18 @@ class ServerGame():
         match cmd:
             case "gameStartCMD":
                 if self.__serverState != "PreGame":
-                    return Ping.fromData("ConsoleError", "Das Spiel ist bereits gestartet.")
+                    return Ping.fromData("ConsoleError", "Das Spiel ist bereits gestartet.", "server")
                 
                 self.__serverState = "GameInit"
                 print("Neuer Serverzustand: [GameInit].")
                 print(f"Initialisierung des Spiels mit den folgenden Spielern: {str(self.__playerNamesPreGame)} ...")
-                return Ping.fromData("ConsoleGameInit", self.__playerNamesPreGame)
+                return Ping.fromData("ConsoleGameInit", self.__playerNamesPreGame, "server")
             
             case "voteTrigger":
                 vote = dict()
                 vote["type"] = "mayor"
                 vote["players"] = self.__playerNamesPreGame
-                self.__broadcastPing(Ping.fromData("VotePing", vote), [])
+                self.__broadcastPing(Ping.fromData("VotePing", vote, "server"), [])
                     
         return EMPTYPING
     
@@ -115,7 +102,7 @@ class ServerGame():
                 "valid": "True" if valid else "False",
                 "error": errorMsg
             }
-        return Ping.fromData("UsernameValidationPing", data)
+        return Ping.fromData("UsernameValidationPing", data, "server")
     
     def computePing(self, ip : str, data : dict) -> dict:
         """
@@ -128,23 +115,24 @@ class ServerGame():
         Returns:
             dict: neuer Ping
         """
+        pingType, pingData, playerID = Ping.toData(data)
         
         if self.__serverState == "PreGame":
             print("\nPing von IP [{}] mit dem folgenden Inhalt empfangen: \n {}".format(ip, data))
         else:
-            print("\nPing von Spieler [{}] an IP [{}] mit dem folgenden Inhalt empfangen: \n {}".format(self.__resolveIPtoPlayerName(ip), ip, data))
-
-        playerID = self.__resolveIPtoPlayerName(ip)
-
-        pingType, pingData = Ping.toData(data)
+            print("\nPing von Spieler [{}] an IP [{}] mit dem folgenden Inhalt empfangen: \n {}".format(playerID, ip, data))
 
         match pingType:
             case 'EmptyPing':
                 pass
             case 'ConsoleInitPing':
-                self.__ipToPlayerName[ip] = "console"
-                playerID = "console"
-                print("Konsole verbunden!")
+                # Wenn noch keine Konsole verbunden ist oder von der gleichen IP eine neue Konsole verbunden wird
+                if self.__consoleIP == None or self.__consoleIP == ip:
+                    self.__consoleIP = ip
+                    print(f"Konsole an IP [{ip}] verbunden!")
+                else:
+                    print(f"Versuch von IP [{ip}], eine Konsole zu verbinden. Abgelehnt, da bereits eine Konsole von einer anderen IP verbunden ist.")
+                    return Ping.fromData("ConsoleError", "Zugriff auf den Server verweigert, da bereits eine andere Konsole auf einem anderen Computer mit dem Server verbunden ist. ", "server")
             case 'ConsoleCommandPing':
                 return self.__computeCommand(pingData)
             case 'UsernamePing':
@@ -153,7 +141,7 @@ class ServerGame():
                 else:
                     # TODO: Dem Spieler die aktuellen Daten senden, da davon auzugehen ist, dass er dem Spiel gerejoined ist
                     print(f"Anmeldeversuch von IP [{ip}] fehlgeschlagen. Das Spiel wurde bereits gestartet.")
-                    return Ping.fromData("UsernameValidationPing", {"valid": False, "error":"bereits gestartet"})
+                    return Ping.fromData("UsernameValidationPing", {"valid": False, "error" : "bereits gestartet"}, "server")
             case 'ConsoleGameInit':
                 for playerName, roleId in pingData.items():
                     self.__rolesToPlayernames[roleId].append(playerName)
@@ -170,8 +158,9 @@ class ServerGame():
                         case _: 
                             raise Exception("Dieser Fehler sollte nicht passieren können.")
                     self.__playerDataBase[playerName] = ClassPlayer.Player(playerName, repr(role))
-                    ping = Ping.fromData("GameStartPing", {"data": repr(role), "players": pingData.keys()})
+                    ping = Ping.fromData("GameStartPing", {"data": repr(role), "players": list(pingData.keys())}, "server")
                     self.__mailbox[playerName].append(ping)
+                    
 
                 print("Datenbank initialisiert. Spiel gestartet.")
                 print(self.__mailbox)

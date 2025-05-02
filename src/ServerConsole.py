@@ -17,12 +17,12 @@ def computeCommand(cmd):
     """
     match cmd:
         case "start game":
-            return Ping.fromData("ConsoleCommandPing", "gameStartCMD")
+            return Ping.fromData("ConsoleCommandPing", "gameStartCMD", "console")
         case "trigger vote":
-            return Ping.fromData("ConsoleCommandPing", "voteTrigger")
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger", "console")
         case _:
             print("Fehler: Unbekannter Befehl")
-            return Ping.fromData("EmptyPing", "")
+            return Ping.fromData("EmptyPing", "", "console")
 
 def computePing(data: dict):
     """
@@ -32,7 +32,7 @@ def computePing(data: dict):
         data (dict): zu verarbeitender Ping
     """
     
-    pingType, pingData = Ping.toData(data)
+    pingType, pingData, _ = Ping.toData(data)
     
     match pingType:
         case 'EmptyPing':
@@ -80,7 +80,7 @@ while not connected:
     except Exception as e:
         print(f"Der folgende Fehler ist aufgetreten: {e}\n Bitte versuche es erneut.")
 
-initMessage = json.dumps(Ping.fromData("ConsoleInitPing", "")).encode('utf-8')
+initMessage = json.dumps(Ping.fromData("ConsoleInitPing", "", "console")).encode('utf-8')
 
 s.send(initMessage)
 
