@@ -152,22 +152,20 @@ def onstatechange(state):
         
                     
                     # Hier Code für nächsten Spielermodel einfügen
-    if state == windowtypes.game:
-        global firststart
-        if firststart:
-            firststart = False
-            screen.fill((255,255,255))
-            ButtonHideRole.draw(screen,"sans-serif", outline=(0,0,0))
-            line_rect = pygame.Rect(display.current_w//6, 0, 5, display.current_h)
-            pygame.draw.rect(screen, (0, 0, 0), line_rect)
-            line_rect = pygame.Rect(display.current_w//6*5, 0, 5, display.current_h)
-            pygame.draw.rect(screen, (0, 0, 0), line_rect)
-            inputonscreen = True
-            input_rect = pygame.Rect(display.current_w // 6 * 6 + 20, display.current_h - 20, display.current_w // 6 - 40, 42)
-            pygame.draw.rect(screen, (0,0,0), input_rect)
-            background_rect = pygame.Rect(display.current_w // 6 * 6 + 15, display.current_h - 15, display.current_w // 6 - 30, 52)
-            pygame.draw.rect(screen, (255,255,255), background_rect)
-            pygame.display.flip()
+    if state == windowtypes.game:   
+        screen.fill((255,255,255))
+        ButtonHideRole.draw(screen,"sans-serif", outline=(0,0,0))
+        line_rect = pygame.Rect(display.current_w//6, 0, 5, display.current_h)
+        pygame.draw.rect(screen, (0, 0, 0), line_rect)
+        line_rect = pygame.Rect(display.current_w//6*5, 0, 5, display.current_h)
+        pygame.draw.rect(screen, (0, 0, 0), line_rect)
+        inputonscreen = True
+        input_rect = pygame.Rect(display.current_w // 6 * 5 + 20, display.current_h - 20, display.current_w // 6 - 40, 42)
+        pygame.draw.rect(screen, (0,0,0), input_rect)
+        background_rect = pygame.Rect(display.current_w // 6 * 5 + 15, display.current_h - 15, display.current_w // 6 - 30, 52)
+        pygame.draw.rect(screen, (255,255,255), background_rect)
+        displayrole()
+        pygame.display.flip()
         
 
 global ipconfirmed
@@ -285,20 +283,24 @@ def confirmusername(name):
            setstate(windowtypes.lobby)
 
 def updatePlayerList(data):
-    for i in data:
-        print("HHHHHHHHHHHHHHHH" + i)
-    drawover_rect = pygame.Rect(0, 0, display.current_w//8-10 , display.current_h)
-    pygame.draw.rect(screen, (255,255,255), drawover_rect)
-    font = pygame.font.SysFont('comicsans', 40)
-    text_surface = font.render("Spieler", False, (0,0,0))
-    text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
-    screen.blit(text_surface, text_rect)
-    font = pygame.font.SysFont('comicsans', 20)
-    for i in data:
-        text_surface = font.render(i, False, (0,0,0))
-        text_rect = text_surface.get_rect(center=(display.current_w // 8, 150 + data.index(i) * 30))
+    if data != []:
+        for i in data:
+            print("HHHHHHHHHHHHHHHH" + i)
+        drawover_rect = pygame.Rect(0, 0, display.current_w//4-10 , display.current_h)
+        pygame.draw.rect(screen, (255,255,255), drawover_rect)
+        print("übergemalt")
+        pygame.display.flip()
+        font = pygame.font.SysFont('comicsans', 40)
+        text_surface = font.render("Spieler", False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
         screen.blit(text_surface, text_rect)
-    pygame.display.flip()
+        font = pygame.font.SysFont('comicsans', 20)
+        for i in data:
+            text_surface = font.render(i, False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 8, 150 + data.index(i) * 30))
+            screen.blit(text_surface, text_rect)
+            print("name gemacht und so")
+        pygame.display.flip()
 
 def hiderole():
     drawover_rect = pygame.Rect(0,0, display.current_w//6-10 , 3000)
@@ -318,6 +320,7 @@ def showrole():
     displayrole()
 
 def displayrole():
+    """
     font = pygame.font.SysFont('sans-serif', 20)
     global playerData
     role = playerData.getrole()
@@ -329,7 +332,8 @@ def displayrole():
     text_surface = font.render(roledescription, False, (0,0,0))
     text_rect = text_surface.get_rect(center=(display.current_w // 12, 250))
     screen.blit(text_surface, text_rect)
-    pygame.display.flip()
+    pygame.display.flip()"""
+    pass
 
 def onquit():
     """
@@ -387,7 +391,12 @@ while True:
         computePing(json.loads(b_answer.decode("utf-8")), ownName)
         if windowstate == windowtypes.lobby:
             pingtype, playerlist, _ = toData(answer)
-            updatePlayerList(playerlist)
+            if pingtype == "NewLobbyPing":
+                updatePlayerList(playerlist)
+        pingtype, data, _ = toData(answer)
+        if pingtype == "GameStartPing":
+            setstate(windowtypes.game)
+
         sleep(1)
     for event in pygame.event.get(): 
   
