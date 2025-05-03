@@ -1,4 +1,6 @@
 from IPencodedecode import encodeIP, decodeIP
+from ClassPlayer import Player
+from ClassRole import Role
 from enum import Enum
 from ClassButton import Button
 import pygame
@@ -14,6 +16,7 @@ pygame.init()
 global answer 
 global ownName
 ownName = None
+player = None
 
 class windowtypes(Enum):
     login = 1
@@ -37,7 +40,7 @@ user_text = ''
 ip = ""
 
 ishosting = False
-firststart = True
+
 
 # create rectangle 
 background_rect = pygame.Rect(195, 195, 110, 42)
@@ -320,20 +323,21 @@ def showrole():
     displayrole()
 
 def displayrole():
-    """
     font = pygame.font.SysFont('sans-serif', 20)
     playerData = getPlayerData()
+    print(playerData)
+    print(type(playerData))
     role = playerData.getrole()
     font = pygame.font.SysFont('comicsans', 30)
-    text_surface = font.render("Rolle : " + role, False, (0,0,0))
+    text_surface = font.render("Rolle : " + role.getname() , False, (0,0,0))
     text_rect = text_surface.get_rect(center=(display.current_w // 12, 200))
     screen.blit(text_surface, text_rect)
     roledescription = role.getdescription()
-    text_surface = font.render(roledescription, False, (0,0,0))
+    text_surface = font.render(str(roledescription), False, (0,0,0))
     text_rect = text_surface.get_rect(center=(display.current_w // 12, 250))
     screen.blit(text_surface, text_rect)
-    pygame.display.flip()"""
-    pass
+    pygame.display.flip()
+    
 
 def onquit():
     """
@@ -396,6 +400,7 @@ while True:
         pingtype, data, _ = toData(answer)
         if pingtype == "GameStartPing":
             setstate(windowtypes.game)
+            playerData = getPlayerData()
 
         sleep(1)
     for event in pygame.event.get(): 
