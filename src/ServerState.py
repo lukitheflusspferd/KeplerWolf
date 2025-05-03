@@ -142,6 +142,11 @@ class ServerGame():
                     # TODO: Dem Spieler die aktuellen Daten senden, da davon auzugehen ist, dass er dem Spiel gerejoined ist
                     print(f"Anmeldeversuch von IP [{ip}] fehlgeschlagen. Das Spiel wurde bereits gestartet.")
                     return Ping.fromData("UsernameValidationPing", {"valid": False, "error" : "bereits gestartet"}, "server")
+            case 'LeaveLobbyPing':
+                if self.__serverState == 'PreGame' and playerID != None:
+                    self.__playerNamesPreGame.remove(playerID)
+                    self.__broadcastPing(Ping.fromData("NewLobbyPing", self.__playerNamesPreGame, "server"), [])
+                    return EMPTYPING
             case 'ConsoleGameInit':
                 for playerName, roleId in pingData.items():
                     self.__rolesToPlayernames[roleId].append(playerName)
