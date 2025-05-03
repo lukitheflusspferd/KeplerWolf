@@ -137,7 +137,7 @@ def onstatechange(state):
         text_rect = text_surface.get_rect(center=(display.current_w // 2, 100))
         screen.blit(text_surface, text_rect)
         pygame.draw.line(screen, (0, 0, 0), (display.current_w//4, 0), (display.current_w//4, display.current_h),5)
-        font = pygame.font.SysFont('comicsans', 30)
+        font = pygame.font.SysFont('comicsans', 40)
         text_surface = font.render("Spieler", False, (0,0,0))
         text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
         screen.blit(text_surface, text_rect)
@@ -284,8 +284,12 @@ def confirmusername(name):
 def updatePlayerList(data):
     for i in data:
         print("HHHHHHHHHHHHHHHH" + i)
+    font = pygame.font.SysFont('comicsans', 30)
     for i in data:
-        pass
+        text_surface = font.render(i, False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w // 8, 150 + data.index(i) * 45))
+        screen.blit(text_surface, text_rect)
+        pygame.display.flip()
 
 def hiderole():
     drawover_rect = pygame.Rect(0,0, 1100, 3000)
