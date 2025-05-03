@@ -8,7 +8,7 @@ import sys
 import socket
 import json
 from time import sleep
-from ClientData import computePing, validName, getMailbox, setMailbox
+from ClientData import computePing, validName, getMailbox, setMailbox, playerData
 from Ping import fromData, toData
 pygame.init() 
 global answer 
@@ -319,13 +319,39 @@ def showrole():
 
 def displayrole():
     font = pygame.font.SysFont('sans-serif', 20)
-    
+    global playerData
+    role = playerData.getrole()
+    font = pygame.font.SysFont('comicsans', 30)
+    text_surface = font.render("Rolle : " + role, False, (0,0,0))
+    text_rect = text_surface.get_rect(center=(display.current_w // 12, 200))
+    screen.blit(text_surface, text_rect)
+    roledescription = role.getdescription()
+    text_surface = font.render(roledescription, False, (0,0,0))
+    text_rect = text_surface.get_rect(center=(display.current_w // 12, 250))
+    screen.blit(text_surface, text_rect)
+    pygame.display.flip()
 
 def onquit():
     """
     beendet die Verbindung zum Server vor dem Beenden des Programms um nicht den Server zu Crashen
     """
-
+    nameremoved = False
+    message = fromData("LeaveLobbyPing", "", ownName) 
+    b_mailbox = json.dumps(message).encode('utf-8')
+    s.send(b_mailbox)
+    mailbox.pop
+    print("Mailbox an Server gesendet")
+    while not nameremoved:
+        b_answer = s.recv(1024)
+        print(b_answer.decode())
+        print("[{}] {}".format(ip, b_answer.decode()))
+        print("")
+        answer = json.loads(b_answer.decode("utf-8"))
+        computePing(json.loads(b_answer.decode("utf-8")), ownName)
+        answertype, answer, _ = toData(answer)
+        if answertype == "EmptyPing":
+            nameremoved = True
+        sleep(1)
     s.close()
     pass
 
@@ -367,8 +393,8 @@ while True:
   
       # if user types QUIT then the screen will close 
         if event.type == pygame.QUIT: 
-            pygame.quit() 
             onquit()
+            pygame.quit() 
             sys.exit() 
         if inputonscreen:
             if event.type == pygame.MOUSEBUTTONDOWN: 
