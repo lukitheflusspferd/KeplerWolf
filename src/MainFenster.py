@@ -286,7 +286,7 @@ def updatePlayerList(data):
     for i in data:
         print("HHHHHHHHHHHHHHHH" + i)
     font = pygame.font.SysFont('comicsans', 20)
-    drawover_rect = pygame.Rect(center=(display.current_w // 8, 150), width=200, height=300)
+    drawover_rect = pygame.Rect(center=(display.current_w // 8, 150, 200, 300))
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
     for i in data:
         text_surface = font.render(i, False, (0,0,0))
