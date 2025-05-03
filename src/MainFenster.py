@@ -137,10 +137,7 @@ def onstatechange(state):
         text_rect = text_surface.get_rect(center=(display.current_w // 2, 100))
         screen.blit(text_surface, text_rect)
         pygame.draw.line(screen, (0, 0, 0), (display.current_w//4, 0), (display.current_w//4, display.current_h),5)
-        font = pygame.font.SysFont('comicsans', 40)
-        text_surface = font.render("Spieler", False, (0,0,0))
-        text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
-        screen.blit(text_surface, text_rect)
+
         # Hier Code für Spielerliste einfügen
         if False: #RAUSGENOMMEN WEIL HOSTEN DURCH CONSOLE UND NICHT ÜBER GUI UND KEINE SPIELERMODELS    
             if ishosting:
@@ -165,6 +162,11 @@ def onstatechange(state):
             pygame.draw.rect(screen, (0, 0, 0), line_rect)
             line_rect = pygame.Rect(display.current_w//6*5, 0, 5, display.current_h)
             pygame.draw.rect(screen, (0, 0, 0), line_rect)
+            inputonscreen = True
+            input_rect = pygame.Rect(display.current_w // 6 * 6 + 20, display.current_h - 20, display.current_w // 6 - 40, 42)
+            pygame.draw.rect(screen, (0,0,0), input_rect)
+            background_rect = pygame.Rect(display.current_w // 6 * 6 + 15, display.current_h - 15, display.current_w // 6 - 30, 52)
+            pygame.draw.rect(screen, (255,255,255), background_rect)
             pygame.display.flip()
         
 
@@ -285,14 +287,18 @@ def confirmusername(name):
 def updatePlayerList(data):
     for i in data:
         print("HHHHHHHHHHHHHHHH" + i)
-    font = pygame.font.SysFont('comicsans', 20)
-    drawover_rect = pygame.Rect(center=(display.current_w // 8, 150, 200, 300))
+    drawover_rect = pygame.Rect(0, 0, display.current_w//8-10 , display.current_h)
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
+    font = pygame.font.SysFont('comicsans', 40)
+    text_surface = font.render("Spieler", False, (0,0,0))
+    text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
+    screen.blit(text_surface, text_rect)
+    font = pygame.font.SysFont('comicsans', 20)
     for i in data:
         text_surface = font.render(i, False, (0,0,0))
         text_rect = text_surface.get_rect(center=(display.current_w // 8, 150 + data.index(i) * 30))
         screen.blit(text_surface, text_rect)
-        pygame.display.flip()
+    pygame.display.flip()
 
 def hiderole():
     drawover_rect = pygame.Rect(0,0, display.current_w//6-10 , 3000)
@@ -319,6 +325,7 @@ def onquit():
     """
     beendet die Verbindung zum Server vor dem Beenden des Programms um nicht den Server zu Crashen
     """
+
     s.close()
     pass
 
