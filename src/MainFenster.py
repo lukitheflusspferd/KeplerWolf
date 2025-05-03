@@ -8,7 +8,7 @@ import sys
 import socket
 import json
 from time import sleep
-from ClientData import computePing, validName, getMailbox, setMailbox, playerData
+from ClientData import computePing, validName, getMailbox, setMailbox, getPlayerData
 from Ping import fromData, toData
 pygame.init() 
 global answer 
@@ -322,7 +322,7 @@ def showrole():
 def displayrole():
     """
     font = pygame.font.SysFont('sans-serif', 20)
-    global playerData
+    playerData = getPlayerData()
     role = playerData.getrole()
     font = pygame.font.SysFont('comicsans', 30)
     text_surface = font.render("Rolle : " + role, False, (0,0,0))

@@ -1,5 +1,4 @@
 from ClassPlayer import Player
-import copy
 import Ping
 from Vote import Voting
 
@@ -46,6 +45,7 @@ def computePing(message: dict, ownName):
         global playerData
         spielerliste = messageData["players"]
         playerData = eval(messageData["data"])
+        print(type(playerData))
         # playerData ist nun ein Objekt der Klasse Player
         
     #if messageType == "UsernameValidationPing":
@@ -59,3 +59,6 @@ def computePing(message: dict, ownName):
     #
     #    print(validName)
     #    print(errorName)
+
+def getPlayerData():
+    return playerData
