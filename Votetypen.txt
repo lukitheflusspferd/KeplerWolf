@@ -1,0 +1,13 @@
+"love1" -> Erster Spieler zum Verlieben
+"love2" -> Zweiter Spieler zum Verlieben
+"see" -> Rolle eines Spielers betrachten (Seher, Blinzelmädchen)
+"hunter" -> Spieler erschießen (Jäger)
+"werewolf" -> Tod durch Werwölfe
+"alpha" -> Tod durch Alpha
+"witch_heal" -> Spieler heilen (Hexe)
+"witch_kill" -> Spieler töten (Hexe)
+
+"nominate_mayor" -> Bürgermeister nominieren -> Voting wird nach den ersten drei Vorschlägen beendet
+"mayor" -> Bürgermeister wählen
+"nominate_hanging" -> Spieler zum Töten nominieren
+"hanging" -> Spieler töten durch Versammlung

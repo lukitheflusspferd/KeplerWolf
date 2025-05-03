@@ -17,7 +17,6 @@ def Voting(players, type, ownName):
         votetype = 'zum töten durch Werwölfe: '
     elif type == "mayor":
         votetype = 'zur Bürgermeisterwahl: '
-        print("votetype")
     elif type == "hanging":
         votetype = 'zum Anklagen: '
     elif type == "alpha": 

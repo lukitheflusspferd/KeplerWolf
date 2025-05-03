@@ -30,6 +30,11 @@ class ServerGame():
         self.__rolesToPlayernames["villager"] = []
 
         self.__playerDataBase = dict()
+        
+        self.__computeVote = None
+        self.__checkForVoteEnd = None
+        self.__countVotings = None
+        self.__votings = dict()
     
     
     ### Verwaltung von Spielernamen ###
