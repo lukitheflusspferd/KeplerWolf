@@ -3,6 +3,7 @@ import Ping
 from Vote import Voting
 
 clientPlayerData = None
+playerData = None
 
 mailbox = []
 validName = False
@@ -41,8 +42,9 @@ def computePing(message: dict, ownName):
         # print(mailbox)
 
     if messageType == "GameStartPing":
+        global PlayerData
         spielerliste = messageData["players"]
-        plaverData = eval(messageData["data"])
+        playerData = eval(messageData["data"])
         # playerData ist nun ein Objekt der Klasse Player
         
     #if messageType == "UsernameValidationPing":
