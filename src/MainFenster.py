@@ -65,7 +65,7 @@ def onstatechange(state):
     """
     global inputonscreen
     global ishosting
-    global ButtonStart, ButtonLeft, ButtonRight
+    # global ButtonStart, ButtonLeft, ButtonRight
     if state == windowtypes.login:
         screen.fill((255,255,255))
         # abfragen ob hosten oder joinen
@@ -142,15 +142,15 @@ def onstatechange(state):
         text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
         screen.blit(text_surface, text_rect)
         # Hier Code für Spielerliste einfügen
-        
-        if ishosting:
-            ButtonStart = Button((0, 255, 0), display.current_w // 2 - 55, display.current_h // 2 + 150, 110, 42, "Start")
-            ButtonStart.draw(screen,"comicsans", outline=(0, 0, 0))
-        # Hier Spielermodels einfügen
-        ButtonLeft = Button((0, 255, 0), display.current_w // 2 - 40, display.current_h // 2 + 20, 40, 42, "<")
-        ButtonLeft.draw(screen,"sans-serif", outline=(0, 0, 0))
-        ButtonRight = Button((0, 255, 0), display.current_w // 2 , display.current_h // 2 + 20, 40, 42, ">")
-        ButtonRight.draw(screen,"sans-serif", outline=(0, 0, 0))
+        if False: #RAUSGENOMMEN WEIL HOSTEN DURCH CONSOLE UND NICHT ÜBER GUI UND KEINE SPIELERMODELS    
+            if ishosting:
+                ButtonStart = Button((0, 255, 0), display.current_w // 2 - 55, display.current_h // 2 + 150, 110, 42, "Start")
+                ButtonStart.draw(screen,"comicsans", outline=(0, 0, 0))
+            # Hier Spielermodels einfügen
+            ButtonLeft = Button((0, 255, 0), display.current_w // 2 - 40, display.current_h // 2 + 20, 40, 42, "<")
+            ButtonLeft.draw(screen,"sans-serif", outline=(0, 0, 0))
+            ButtonRight = Button((0, 255, 0), display.current_w // 2 , display.current_h // 2 + 20, 40, 42, ">")
+            ButtonRight.draw(screen,"sans-serif", outline=(0, 0, 0))
         pygame.display.flip()
         
                     
@@ -161,10 +161,11 @@ def onstatechange(state):
             firststart = False
             screen.fill((255,255,255))
             ButtonHideRole.draw(screen,"sans-serif", outline=(0,0,0))
-        
-        
-        
-
+            line_rect = pygame.Rect(display.current_w//6, 0, 5, display.current_h)
+            pygame.draw.rect(screen, (0, 0, 0), line_rect)
+            line_rect = pygame.Rect(display.current_w//6*5, 0, 5, display.current_h)
+            pygame.draw.rect(screen, (0, 0, 0), line_rect)
+            pygame.display.flip()
         
 
 global ipconfirmed
@@ -284,19 +285,36 @@ def confirmusername(name):
 def updatePlayerList(data):
     for i in data:
         print("HHHHHHHHHHHHHHHH" + i)
-    font = pygame.font.SysFont('comicsans', 30)
+    font = pygame.font.SysFont('comicsans', 20)
+    drawover_rect = pygame.Rect(center=(display.current_w // 8, 150), width=200, height=300)
+    pygame.draw.rect(screen, (255,255,255), drawover_rect)
     for i in data:
         text_surface = font.render(i, False, (0,0,0))
-        text_rect = text_surface.get_rect(center=(display.current_w // 8, 150 + data.index(i) * 45))
+        text_rect = text_surface.get_rect(center=(display.current_w // 8, 150 + data.index(i) * 30))
         screen.blit(text_surface, text_rect)
         pygame.display.flip()
 
 def hiderole():
-    drawover_rect = pygame.Rect(0,0, 1100, 3000)
-    pygame.draw.rect(screen, (255,255,255), fill_rect1)
+    drawover_rect = pygame.Rect(0,0, display.current_w//6-10 , 3000)
+    pygame.draw.rect(screen, (255,255,255), drawover_rect)
+    global ButtonHideRoleonscreen, ButtonShowRoleonscreen
+    ButtonHideRoleonscreen = False
+    ButtonShowRoleonscreen = True
+    ButtonShowRole.draw(screen,"sans-serif", outline=(0,0,0))
+
 def showrole():
     drawover_rect = pygame.Rect(0,0, 1100, 3000)
-    pygame.draw.rect(screen, (255,255,255), fill_rect1)
+    pygame.draw.rect(screen, (255,255,255), drawover_rect)
+    global ButtonHideRoleonscreen, ButtonShowRoleonscreen
+    ButtonHideRoleonscreen = True
+    ButtonShowRoleonscreen = False
+    ButtonHideRole.draw(screen,"sans-serif", outline=(0,0,0))
+    displayrole()
+
+def displayrole():
+    font = pygame.font.SysFont('sans-serif', 20)
+    
+
 def onquit():
     """
     beendet die Verbindung zum Server vor dem Beenden des Programms um nicht den Server zu Crashen
@@ -351,7 +369,7 @@ while True:
                     active = True
                 else: 
                     active = False
-                if windowstate == windowtypes.lobby:
+                if windowstate == windowtypes.lobby and False: #AUCH RAUSGENOMMEN
                     if ButtonStart.isOver(event.pos):
                         print("Spiel starten")
                         setstate(windowtypes.game)
