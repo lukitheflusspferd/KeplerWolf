@@ -1,3 +1,4 @@
+import atexit
 import copy
 import json
 import socket
@@ -7,6 +8,14 @@ import Ping
 import Rollenverteilung
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+def onClose():
+    global s
+    s.close()
+    print("Verbindung beendent")
+
+atexit.register(onClose)
+
 
 def computeCommand(cmd):
     """

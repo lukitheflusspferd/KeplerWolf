@@ -163,7 +163,7 @@ class ServerGame():
                         case _: 
                             raise Exception("Dieser Fehler sollte nicht passieren können.")
                     self.__playerDataBase[playerName] = ClassPlayer.Player(playerName, repr(role))
-                    ping = Ping.fromData("GameStartPing", {"data": repr(role), "players": list(pingData.keys())}, "server")
+                    ping = Ping.fromData("GameStartPing", {"data": repr(self.__playerDataBase[playerName]), "players": list(pingData.keys())}, "server")
                     self.__mailbox[playerName].append(ping)
                     
 

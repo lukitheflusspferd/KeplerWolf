@@ -31,11 +31,6 @@ def computePing(message: dict, ownName):
     if messageType == "EmptyPing":
         pass
 
-    if messageType == "SetMode":
-        type = messageData["eventType"]
-        data = messageData["data"]
-        # hier später pygame Funktion aufrufen
-
     if messageType == "VotePing":
         messageData = messageData
         voteType = messageData["type"]
@@ -45,10 +40,10 @@ def computePing(message: dict, ownName):
         mailbox.append(vote)
         # print(mailbox)
 
-    if messageType == "DeathPing":
-        username = messageData["username"]
-        role =  messageData["role"]
-        # hier später pygame Funktion aufrufen
+    if messageType == "GameStartPing":
+        spielerliste = messageData["players"]
+        plaverData = eval(messageData["data"])
+        # playerData ist nun ein Objekt der Klasse Player
         
     #if messageType == "UsernameValidationPing":
     #    global validName
