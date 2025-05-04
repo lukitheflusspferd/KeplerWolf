@@ -3,15 +3,16 @@ import pygame
 #Quelle: https://stackoverflow.com/questions/63435298/how-to-create-a-button-class-in-pygame
 
 class Button:
-    def __init__(self, color, x, y, width, height, text=''):
+    def __init__(self, color, x, y, width, height, text='', size=30):
         self.__color = color
         self.__x = x
         self.__y = y
         self.__width = width
         self.__height = height
         self.__text = text
+        self.__size = size
 
-    def draw(self, win,font, outline=None, ):
+    def draw(self, win,font, outline=None,):
         # Call this method to draw the button on the screen
         if outline:
             pygame.draw.rect(win, outline, (self.__x-2, self.__y-2, self.__width+4, self.__height+4), 0)
@@ -19,7 +20,7 @@ class Button:
         pygame.draw.rect(win, self.__color, (self.__x, self.__y, self.__width, self.__height), 0)
         
         if self.__text != '':
-            font = pygame.font.SysFont(font, 30) #Schriftart und -größe
+            font = pygame.font.SysFont(font, self.__size) #Schriftart und -größe
             text = font.render(self.__text, 1, (0, 0, 0))
             win.blit(text, (self.__x + (self.__width/2 - text.get_width()/2), self.__y + (self.__height/2 - text.get_height()/2)))
 
@@ -64,10 +65,10 @@ def button_action():
 # Main game loop
 running = True
 if not running:
-    win.fill((255, 255, 255))  # Fill screen with white
+    #win.fill((255, 255, 255))  # Fill screen with white
     
     # Draw the button
-    my_button.draw(win, outline=(0, 0, 0))
+    #my_button.draw(win, outline=(0, 0, 0))
     
     # Event handling
     for event in pygame.event.get():
