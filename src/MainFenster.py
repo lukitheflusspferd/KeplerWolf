@@ -350,14 +350,39 @@ def displayrole():
     print(playerData)
     print(type(playerData))
     role = playerData.getrole()
-    font = pygame.font.SysFont('comicsans', 30)
-    text_surface = font.render("Rolle : " + role.getname() , False, (0,0,0))
+    font = pygame.font.SysFont('comicsans', 25)
+    text_surface = font.render("Rolle:", False, (0,0,0))
     text_rect = text_surface.get_rect(center=(display.current_w // 12, 200))
     screen.blit(text_surface, text_rect)
-    roledescription = role.getdescription()
-    text_surface = font.render(str(roledescription), False, (0,0,0))
-    text_rect = text_surface.get_rect(center=(display.current_w // 12, 250))
+    text_surface = font.render(role.getname() , False, (0,0,0))
+    text_rect = text_surface.get_rect(center=(display.current_w // 12, 240))
     screen.blit(text_surface, text_rect)
+    font = pygame.font.SysFont('comicsans', 20)
+    roledescription = role.getdescription()
+    descriptionlist = list(roledescription)
+    temp1 = []
+    temp2 = []
+    temp3 = ""
+    j = 0
+    for i in descriptionlist:
+        temp1.append(i)
+        j += 1
+        if j >= 13:
+            if i == " ":
+                for k in range(j):
+                    temp3 +=temp1[k]
+                temp2.append(temp3)
+                temp1 = []
+                temp3 = ""
+                j = 0
+    for i in temp1:
+        temp3 += i
+    temp2.append(temp3)
+    print(temp2)
+    for i in temp2:            
+        text_surface = font.render(i, False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w // 12, 300 + temp2.index(i)*25))
+        screen.blit(text_surface, text_rect) 
     pygame.display.flip()
     
 
