@@ -29,25 +29,19 @@ def decodeIP(ip):
         if i != '-':
             temp5.append(i)
     chars = temp5
-    for i in range(8):
-        if i % 2 == 0:
-            temp = chars[i]
-            temp = int(ord(temp)) - 65
-            temp1 = temp * 26
-            
-        else:
-            tempadd = chars[i]
-            tempadd = int(ord(tempadd)) - 65
-            number = temp1 + tempadd
-            if decodedIP == '':
-                decodedIP += str(number) 
-            else: 
-                decodedIP += '.' + str(number) 
-    return decodedIP
-
-"""
-tmp = input("in: ")
-tmp = encodeIP(tmp)
-print(tmp)
-print(decodeIP(tmp))
-"""
+    if len(chars) == 8:   
+        for i in range(8):
+            if i % 2 == 0:
+                temp = chars[i]
+                temp = int(ord(temp)) - 65
+                temp1 = temp * 26
+                
+            else:
+                tempadd = chars[i]
+                tempadd = int(ord(tempadd)) - 65
+                number = temp1 + tempadd
+                if decodedIP == '':
+                    decodedIP += str(number) 
+                else: 
+                    decodedIP += '.' + str(number) 
+        return decodedIP
