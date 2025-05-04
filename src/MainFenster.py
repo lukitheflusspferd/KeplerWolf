@@ -24,7 +24,7 @@ class windowtypes(Enum):
     game = 3
     win = 4
     lose = 5
-
+testplayer = Player("Test")
 global inputonscreen
 clock = pygame.time.Clock() 
 display = pygame.display.Info()
@@ -50,7 +50,7 @@ color_active = pygame.Color('lightskyblue3')
 # color of input box. 
 color_passive = pygame.Color('chartreuse4') 
 color = color_passive
-  
+istesting = False
 active = False
 
 windowstate = 0
@@ -66,8 +66,7 @@ def onstatechange(state):
     """
     führt die Hauptveränderungen auf dem Bildschirm durch
     """
-    global inputonscreen
-    global ishosting
+    global inputonscreen, input_rect, background_rect, ishosting
     # global ButtonStart, ButtonLeft, ButtonRight
     if state == windowtypes.login:
         screen.fill((255,255,255))
@@ -81,55 +80,65 @@ def onstatechange(state):
             text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))
             screen.blit(text_surface, text_rect)
             pygame.display.flip()
-            ButtonStart = Button((0, 255, 0), display.current_w // 2 + 25, display.current_h // 2 + 45, 110, 42, "Hosten")
-            ButtonStart.draw(screen,"comicsans", outline=(0, 0, 0))
-            ButtonLeft = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 45, 110, 42, "Joinen")
-            ButtonLeft.draw(screen,"comicsans", outline=(0, 0, 0))
+            ButtonHost = Button((0, 255, 0), display.current_w // 2 + 25, display.current_h // 2 + 45, 110, 42, "Hosten")
+            ButtonHost.draw(screen,"comicsans", outline=(0, 0, 0))
+            ButtonJoin = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 45, 110, 42, "Joinen")
+            ButtonJoin.draw(screen,"comicsans", outline=(0, 0, 0))
+            ButtonTest = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 100, 110, 42, "Test")
+            ButtonTest.draw(screen,"comicsans", outline=(0, 0, 0))
             pygame.display.flip()
     
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if ButtonStart.isOver(event.pos):
+                    if ButtonHost.isOver(event.pos):
                         
                         ishosting = True
                         print("Hosten")
                         # Hier Code für Hosten einfügen
                         undecided = False
-                    elif ButtonLeft.isOver(event.pos):
+                    elif ButtonJoin.isOver(event.pos):
                         # Joinen
                         print("Joinen")
                         # Hier Code für Joinen einfügen
                         undecided = False
-        drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-100 , 500, 300)
-        pygame.draw.rect(screen, (255,255,255), drawover_rect)
-        global background_rect 
-        background_rect = pygame.Rect(display.current_w // 2 - 95, display.current_h // 2 + 45, 190, 42)
-        global input_rect
-        input_rect = pygame.Rect(display.current_w // 2 - 90, display.current_h // 2 + 50, 180, 32)
+                    elif ButtonTest.isOver(event.pos):
+                        global playerData, testplayer, istesting
+                        istesting = True
+                        playerData = testplayer
+                        undecided = False
+                        filllogintext()
+                        setstate(windowtypes.game)
+        if not istesting:                
+            drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-100 , 500, 300)
+            pygame.draw.rect(screen, (255,255,255), drawover_rect)
+            global background_rect 
+            background_rect = pygame.Rect(display.current_w // 2 - 95, display.current_h // 2 + 45, 190, 42)
+            global input_rect
+            input_rect = pygame.Rect(display.current_w // 2 - 90, display.current_h // 2 + 50, 180, 32)
 
-        inputonscreen = True
-        font = pygame.font.SysFont('comicsans', 30)
-        text_surface = font.render("Login", False, (0,0,0))
-        text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))        
-        screen.blit(text_surface, text_rect)
-        pygame.display.flip()
-        if ishosting:
-            # Hier Code für Hosten einfügen
-            text_surface = font.render("Lobby Code:", False, (0,0,0))
-            text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-80))
-            screen.blit(text_surface, text_rect)
-            hostname = socket.gethostname()
-            IP = socket.gethostbyname(hostname)
-            lobbycode = encodeIP(IP)
-            text_surface = font.render(lobbycode, False, (0,0,0))
-            text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-40))
+            inputonscreen = True
+            font = pygame.font.SysFont('comicsans', 30)
+            text_surface = font.render("Login", False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))        
             screen.blit(text_surface, text_rect)
             pygame.display.flip()
-            confirmusername("")
-        else:
-            confirmip("")
+            if ishosting:
+                # Hier Code für Hosten einfügen
+                text_surface = font.render("Lobby Code:", False, (0,0,0))
+                text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-80))
+                screen.blit(text_surface, text_rect)
+                hostname = socket.gethostname()
+                IP = socket.gethostbyname(hostname)
+                lobbycode = encodeIP(IP)
+                text_surface = font.render(lobbycode, False, (0,0,0))
+                text_rect = text_surface.get_rect(center=(display.current_w // 2 + 500, display.current_h // 2-40))
+                screen.blit(text_surface, text_rect)
+                pygame.display.flip()
+                confirmusername("")
+            else:
+                confirmip("")
     if state == windowtypes.lobby:
         inputonscreen = False
         drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
@@ -157,18 +166,23 @@ def onstatechange(state):
                     # Hier Code für nächsten Spielermodel einfügen
     if state == windowtypes.game:   
         screen.fill((255,255,255))
-        ButtonHideRole.draw(screen,"sans-serif", outline=(0,0,0))
+        global ButtonHideRoleonscreen
+        ButtonHideRoleonscreen = True
+        ButtonHideRole.draw(screen,"comicsans", outline=(0,0,0))
         line_rect = pygame.Rect(display.current_w//6, 0, 5, display.current_h)
         pygame.draw.rect(screen, (0, 0, 0), line_rect)
         line_rect = pygame.Rect(display.current_w//6*5, 0, 5, display.current_h)
         pygame.draw.rect(screen, (0, 0, 0), line_rect)
         inputonscreen = True
-        input_rect = pygame.Rect(display.current_w // 6 * 5 + 20, display.current_h - 20, display.current_w // 6 - 40, 42)
-        pygame.draw.rect(screen, (0,0,0), input_rect)
-        background_rect = pygame.Rect(display.current_w // 6 * 5 + 15, display.current_h - 15, display.current_w // 6 - 30, 52)
+        background_rect = pygame.Rect(display.current_w // 6 * 5 + 15, display.current_h // 8*6.5, display.current_w // 6 - 30, 52)
+        input_rect = pygame.Rect(display.current_w // 6 * 5 + 20, display.current_h //8 *6.5+5, display.current_w // 6 - 40, 42)
         pygame.draw.rect(screen, (255,255,255), background_rect)
-        displayrole()
+        pygame.draw.rect(screen, color, input_rect)
+        print(background_rect)
         pygame.display.flip()
+        displayrole()
+        
+        
         
 
 global ipconfirmed
@@ -306,25 +320,31 @@ def updatePlayerList(data):
         pygame.display.flip()
 
 def hiderole():
-    drawover_rect = pygame.Rect(0,0, display.current_w//6-10 , 3000)
+    print("Hide Role")
+    drawover_rect = pygame.Rect(0,0, display.current_w//6, display.current_h)
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
     global ButtonHideRoleonscreen, ButtonShowRoleonscreen
     ButtonHideRoleonscreen = False
     ButtonShowRoleonscreen = True
-    ButtonShowRole.draw(screen,"sans-serif", outline=(0,0,0))
+    ButtonShowRole.draw(screen,"comic-sans", outline=(0,0,0))
+    pygame.display.flip()
 
 def showrole():
-    drawover_rect = pygame.Rect(0,0, 1100, 3000)
+    print("Show Role")
+    drawover_rect = pygame.Rect(0,0, display.current_w//6, display.current_h)
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
     global ButtonHideRoleonscreen, ButtonShowRoleonscreen
     ButtonHideRoleonscreen = True
     ButtonShowRoleonscreen = False
-    ButtonHideRole.draw(screen,"sans-serif", outline=(0,0,0))
+    ButtonHideRole.draw(screen,"comic-sans", outline=(0,0,0))
     displayrole()
+    pygame.display.flip()
 
 def displayrole():
+    global playerData
     font = pygame.font.SysFont('sans-serif', 20)
-    playerData = getPlayerData()
+    if not istesting:
+        playerData = getPlayerData()
     print(playerData)
     print(type(playerData))
     role = playerData.getrole()
@@ -363,8 +383,8 @@ def onquit():
     s.close()
     pass
 
-ButtonHideRole = Button((0,255,0), 50, 100, 100, 42, "Rolle verstecken" )
-ButtonShowRole = Button((0,255,0), 50, 100, 100, 42, "Rolle anzeigen" )
+ButtonHideRole = Button((0,255,0), 25, 50, display.current_w//6-50, 42, "Rolle verstecken", 25 )
+ButtonShowRole = Button((0,255,0), 25, 50, display.current_w//8-50, 42, "Rolle anzeigen", 25 )
 ButtonHideRoleonscreen = False
 ButtonShowRoleonscreen = False
 
@@ -425,13 +445,14 @@ while True:
                         # Hier Code für vorherigen Spielermodel einfügen
                     elif ButtonRight.isOver(event.pos):
                         pass
-                if windowstate == windowtypes.game:
-                    if ButtonHideRoleonscreen:
-                        if ButtonHideRole.isOver(event.pos):
-                            hiderole()
-                    if ButtonShowRoleonscreen:
-                        if ButtonShowRole.isOver(event.pos):
-                            showrole()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if windowstate == windowtypes.game:
+                if ButtonHideRoleonscreen:
+                    if ButtonHideRole.isOver(event.pos):
+                        hiderole()
+                if ButtonShowRoleonscreen:
+                    if ButtonShowRole.isOver(event.pos):
+                        showrole()
 
 
             if event.type == pygame.KEYDOWN: 
@@ -463,7 +484,7 @@ while True:
                     color = color_passive 
                     
                 # draw rectangle and argument passed which should be on screen
-                if not usernameconfirmed: 
+                if not usernameconfirmed or windowstate == windowtypes.game: 
                     pygame.draw.rect(screen, (0,0,0), background_rect)
                     pygame.draw.rect(screen, color, input_rect) 
                     
