@@ -53,7 +53,7 @@ try:
         #    "data": input('Bitte gib deinen Namen ein:')
         #}
 
-        ownName = input('Bitte gib deinen Namen ein:')
+        ownName = input('Bitte gib deinen Namen ein:  ')
         
         message = Ping.fromData("UsernamePing", ownName, ownName)
         
@@ -76,6 +76,8 @@ try:
         else:
             if pingData["error"] == "doppelt":
                 print("Dieser Name ist bereits vergeben. Bitte wähle einen anderen.\n")
+            if pingData["error"] == "leer":
+                print("Kein Name eingegeben. Bitte versuche es erneut.\n")
             else:
                 print("Es ist ein sonstiger Fehler aufgetreten. Bitte versuche es erneut.\n")
         

@@ -10,8 +10,12 @@ class announcementtypes(Enum):
     lovers = 5
     hunter = 6
 
-def Voting(players, type, ownName):
+def Voting(players, type, ownName, dummy):
     print("Voting wird ausgeführt")
+    
+    if dummy == "True":
+        _ = input(f"Dummy-Voting des Typs [{type}]. Bitte mit Enter bestätigen")
+        return Ping.fromData("VoteAnswerPing", "", ownName)
     
     if type == "werewolf": 
         votetype = 'zum töten durch Werwölfe: '
@@ -39,11 +43,6 @@ def Voting(players, type, ownName):
         for i in players:
             if vote == i: notyetvoted = False
         if notyetvoted: print('Name nicht erkannt')
-    #votePing = {
-    #    "type": "VoteAnswerPing",
-    #    "data": vote
-    #}
-    #return votePing
     return Ping.fromData("VoteAnswerPing", vote, ownName)
 
 def Nominate(players, type):

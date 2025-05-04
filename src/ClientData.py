@@ -36,8 +36,9 @@ def computePing(message: dict, ownName):
         messageData = messageData
         voteType = messageData["type"]
         players = messageData["players"]
+        dummy = messageData["dummy"]
 
-        vote = Voting(players, voteType, ownName)
+        vote = Voting(players, voteType, ownName, dummy)
         mailbox.append(vote)
         # print(mailbox)
 
