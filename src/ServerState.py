@@ -29,11 +29,12 @@ class ServerGame():
             self.__rolesToPlayernames[role.getId()] = []
         self.__rolesToPlayernames["villager"] = []
 
-        self.__playerDataBase = dict()
+        self.__playerDataBase : dict[ClassPlayer.Player] = dict()
         
         self.__computeVote = None
         self.__checkForVoteEnd = None
         self.__countVotings = None
+        self.__pendingVotingPlayers = []
         self.__votings = dict()
     
     
@@ -83,10 +84,12 @@ class ServerGame():
                 return Ping.fromData("ConsoleGameInit", self.__playerNamesPreGame, "server")
             
             case "voteTrigger":
-                vote = dict()
-                vote["type"] = "mayor"
-                vote["players"] = self.__playerNamesPreGame
-                self.__broadcastPing(Ping.fromData("VotePing", vote, "server"), [])
+                # vote = dict()
+                # vote["type"] = "mayor"
+                # vote["players"] = self.__playerNamesPreGame
+                # self.__broadcastPing(Ping.fromData("VotePing", vote, "server"), [])
+                self.__initVoting("werewolf")
+                
                     
         return EMPTYPING
     
@@ -202,9 +205,48 @@ class ServerGame():
             for player in targetPlayers:
                 self.__mailbox[player].append(ping)
         
-        print(self.__mailbox)
+        # print(self.__mailbox)
         
+    ### Voting Logik ###
     
+    def __initVoting(self, voteType: str):
+        """
+        Initialisiert die für eine Abstimmung notwendigen Methoden und Variablen
+
+        Args:
+            voteType (str): Typ des Votings
+        """
+        self.__pendingVotingPlayers = []
+        
+        for player in self.__playerDataBase.values():
+            if player.getisdead():
+                self.__pendingVotingPlayers.append(player.getname())
+        
+        votePing = dict()
+        votePing["type"] = voteType
+        votePing["dummy"] = "False"
+        
+        match voteType:
+            case 'werewolf':
+                self.__computeVote = None
+                self.__checkForVoteEnd = None
+                self.__countVotings = None
+                self.__votings = dict()
+                
+                possiblePlayers = []
+                votingPlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if player.getrole().getId() not in {"werewolf", "alpha"}:
+                        possiblePlayers.append(player.getname())
+                    else:
+                        votingPlayers.append(player.getname())
+                
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), votingPlayers)
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], votingPlayers)
+
     
     #def computeNightVoteCycle(playerDatabase, nightCounter):
     #    rolesToPlayers = dict()
