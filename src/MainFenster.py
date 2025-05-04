@@ -59,6 +59,8 @@ color = color_passive
 istesting = False
 active = False
 
+buttonHideResultonscreen = False
+
 windowstate = 0
 def setstate(window):
     """
@@ -188,12 +190,10 @@ def onstatechange(state):
         pygame.draw.rect(screen, color, input_rect)
         print(background_rect)
         pygame.display.flip()
-        displayrole()        
-        triggerfakevote()
+        displayrole()
+        displayresults("test", "Vote")     #NUR ZUM   
+        triggerfakevote() #TESTEN
         
-        
-        
-
 global ipconfirmed
 ipconfirmed = False            
 
@@ -214,7 +214,7 @@ def checkConnection(ip, port, timeout=2):
 
 def filllogintext():
     """
-    übermalt die Login anzeigen um platz für neuen Text zu machen
+    übermalt die Login anzeigen um Platz für neuen Text zu machen
     """
     fill_rect1 = pygame.Rect(display.current_w // 2 - 550, display.current_h // 2-30 , 1100, 60)
     fill_rect2 = pygame.Rect(display.current_w // 2 - 550, display.current_h // 2 + 100, 1100, 120)
@@ -309,6 +309,9 @@ def confirmusername(name):
            setstate(windowtypes.lobby)
 
 def updatePlayerList(data):
+    """
+    Zeigt die aktuelle Spielerliste in der Lobby an
+    """
     if data != []:
         for i in data:
             print("HHHHHHHHHHHHHHHH" + i)
@@ -329,6 +332,9 @@ def updatePlayerList(data):
         pygame.display.flip()
 
 def hiderole():
+    """
+    übermalt die eigene Rolle um sie zu verstecken, zeigt "Rolle anzeigen" Button an
+    """
     print("Hide Role")
     drawover_rect = pygame.Rect(0,0, display.current_w//6, display.current_h)
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
@@ -339,6 +345,9 @@ def hiderole():
     pygame.display.flip()
 
 def showrole():
+    """
+    ruft die Funktion auf um die Rolle anzuzeigen, zeigt "Rolle verstecken" Button an
+    """
     print("Show Role")
     drawover_rect = pygame.Rect(0,0, display.current_w//6, display.current_h)
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
@@ -350,6 +359,9 @@ def showrole():
     pygame.display.flip()
 
 def displayrole():
+    """
+    zeigt die Rolle des Spielers an
+    """
     global playerData
     font = pygame.font.SysFont('sans-serif', 20)
     if not istesting:
@@ -359,10 +371,10 @@ def displayrole():
     role = playerData.getrole()
     font = pygame.font.SysFont('comicsans', 25)
     text_surface = font.render("Rolle:", False, (0,0,0))
-    text_rect = text_surface.get_rect(center=(display.current_w // 12, 200))
+    text_rect = text_surface.get_rect(center=(display.current_w // 12, 150))
     screen.blit(text_surface, text_rect)
     text_surface = font.render(role.getname() , False, (0,0,0))
-    text_rect = text_surface.get_rect(center=(display.current_w // 12, 240))
+    text_rect = text_surface.get_rect(center=(display.current_w // 12, 180))
     screen.blit(text_surface, text_rect)
     font = pygame.font.SysFont('comicsans', 20)
     roledescription = role.getdescription()
@@ -388,63 +400,72 @@ def displayrole():
     print(temp2)
     for i in temp2:            
         text_surface = font.render(i, False, (0,0,0))
-        text_rect = text_surface.get_rect(center=(display.current_w // 12, 300 + temp2.index(i)*25))
+        text_rect = text_surface.get_rect(center=(display.current_w // 12, 230 + temp2.index(i)*25))
         screen.blit(text_surface, text_rect) 
     pygame.display.flip()
 
 def statechange(data):
+    """
+    verändert die Spielerdaten, leitet Todesnachricht ein
+    """
     global playerData
     if not playerData.getisdead() and data.getisdead():
         pass #TODESSCREEN EINFÜGEN SO EINE MESSAGE OBEN DAS MAN TOT IST
     playerData = data
 
 def triggervote(data):
+    """
+    stellt Text für die Abstimmung zusammen, leitet Abstimmung ein
+    """
     global voteactive, voteoptionlist, witchvotephase, votetype
     voteactive = True
-    votetype = data["VoteType"]
-    playerlist = data["PlayerList"]
+    votetype = data["type"]
+    playerlist = data["players"]
     playerlisttext = ""
     if len(playerlist) != 1:
-        for i in data["PlayerList"]:
-            if data["PlayerList"].index(i) != len(data["PlayerList"]) - 1:
+        for i in data["players"]:
+            if data["players"].index(i) != len(data["players"]) - 1:
                 playerlisttext += i + ", "
             else:
                 playerlisttext += i + "."
     else:
-        playerlisttext = data["PlayerList"][0]
-    if data["VoteType"] == "witch_heal" or data["VoteType"] == "witch_kill":
+        playerlisttext = data["players"][0]
+    if data["type"] == "witch_heal" or data["type"] == "witch_kill":
         if witchvotephase == 1:
             voteoptionlist = ["Ja", "Nein"]
-            if data["VoteType"] == "witch_heal":
-                displaytext("Willst du das Opfer, " + playerlisttext + " heilen? (Ja/Nein)")
-            elif data["VoteType"] == "witch_kill":
-                displaytext("Willst du einen Spieler Töten? (Ja/Nein)")
+            if data["type"] == "witch_heal":
+                displayrequesttext("Willst du das Opfer, " + playerlisttext + " heilen? (Ja/Nein)")
+            elif data["type"] == "witch_kill":
+                displayrequesttext("Willst du einen Spieler Töten? (Ja/Nein)")
         elif witchvotephase == 2:
-            voteoptionlist = data["PlayerList"]
+            voteoptionlist = data["players"]
     else: 
-        voteoptionlist = data["PlayerList"]
-        if data["VoteType"] == "love1":
-            displaytext("Schreibe den Namen eines Spielers, den du verlieben willst: " + playerlisttext)
-        elif data["VoteType"] == "love2":
-            displaytext("Schreibe einen weiteren Namen eines Spielers, den du verlieben willst: " + playerlisttext)
-        elif data["VoteType"] == "see":
-            displaytext("Schreibe den Namen des Spielers, wessen Rolle du sehen willst: " + playerlisttext)
-        elif data["VoteType"] == "hunter":
-            displaytext("Schreibe den Namen des Spielers, den du mit in den Tod nehmen willst: " + playerlisttext)
-        elif data["VoteType"] == "werewolf":
-            displaytext("Schreibe den Namen des Spielers, den du töten willst: " + playerlisttext)
-        elif data["VoteType"] == "alpha":
-            displaytext("Schreibe den Namen des Spielers, den du als Alpha töten willst: " + playerlisttext)
-        elif data["VoteType"] == "nominate_mayor":
-            displaytext("Schreibe den Namen des Spielers, den du als Bürgermeister nominieren willst: " + playerlisttext)
-        elif data["VoteType"] == "mayor":
-            displaytext("Schreibe den Namen des Spielers, den du zum Bürgermeister wählen willst: " + playerlisttext)
-        elif data["VoteType"] == "nominate_hanging":
-            displaytext("Schreibe den Namen des Spielers, den du zum erhängen nominieren willst: " + playerlisttext)
-        elif data["VoteType"] == "hanging":
-            displaytext("Schreibe den Namen des Spielers, den du erhängen willst: " + playerlisttext)
+        voteoptionlist = data["players"]
+        if data["type"] == "love1":
+            displayrequesttext("Schreibe den Namen eines Spielers, den du verlieben willst: " + playerlisttext)
+        elif data["type"] == "love2":
+            displayrequesttext("Schreibe einen weiteren Namen eines Spielers, den du verlieben willst: " + playerlisttext)
+        elif data["type"] == "see":
+            displayrequesttext("Schreibe den Namen des Spielers, wessen Rolle du sehen willst: " + playerlisttext)
+        elif data["type"] == "hunter":
+            displayrequesttext("Schreibe den Namen des Spielers, den du mit in den Tod nehmen willst: " + playerlisttext)
+        elif data["type"] == "werewolf":
+            displayrequesttext("Schreibe den Namen des Spielers, den du töten willst: " + playerlisttext)
+        elif data["type"] == "alpha":
+            displayrequesttext("Schreibe den Namen des Spielers, den du als Alpha töten willst: " + playerlisttext)
+        elif data["type"] == "nominate_mayor":
+            displayrequesttext("Schreibe den Namen des Spielers, den du als Bürgermeister nominieren willst: " + playerlisttext)
+        elif data["type"] == "mayor":
+            displayrequesttext("Schreibe den Namen des Spielers, den du zum Bürgermeister wählen willst: " + playerlisttext)
+        elif data["type"] == "nominate_hanging":
+            displayrequesttext("Schreibe den Namen des Spielers, den du zum erhängen nominieren willst: " + playerlisttext)
+        elif data["type"] == "hanging":
+            displayrequesttext("Schreibe den Namen des Spielers, den du erhängen willst: " + playerlisttext)
 
 def triggerfakevote():
+    """
+    stellt Text für die Fake Abstimmung zusammen, leitet Fake Abstimmung ein, genutzt um Rollen nicht vom tippen aus zu hören
+    """
     global fakevoteactive, playerlist, testplayerlist
     temp = ""
     fakevoteactive = True
@@ -458,9 +479,12 @@ def triggerfakevote():
         else:
             temp += i + "."
     text = "Schreibe einen der Spielernamen in das Textfeld: " + temp
-    displaytext(text)
+    displayrequesttext(text)
 
-def displaytext(text, error = False):
+def displayrequesttext(text, error = False):
+    """
+    zeigt die Abstimmungsinformationen an
+    """
     fillrequesttext()
     font = pygame.font.SysFont('comicsans', 20)
     chars = list(text)
@@ -496,12 +520,107 @@ def displaytext(text, error = False):
     pygame.display.flip()
 
 def displaywronganswer():
+    """
+    stellt Fehlermeldung zusammen, wenn die Antwort nicht richtig ist
+    """
     text = "Die Antwort wurde nicht erkannt, gebe etwas anderes ein."
-    displaytext(text, True)
+    displayrequesttext(text, True)
     
 def fillrequesttext():
-    drawover_rect = pygame.Rect(display.current_w // 6 * 5 + 10, 0 , display.current_w//6-10, display.current_h//8*6+10)
+    """
+    übermalt die Abstimmungsinformationen um Platz für neuen Text zu machen oder das Ende einer Abstimmung zu signalisieren
+    """
+    drawover_rect = pygame.Rect(display.current_w // 6 * 5 + 10, display.current_h//2 , display.current_w//6-10, display.current_h//4+10)
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
+    pygame.display.flip()
+
+def displayresults(data, resulttype):
+    """
+    zeigt die Ergebnisse einer Abstimmung oder einer Tötung an
+    """
+    global buttonHideResultonscreen, ButtonHideResult
+    hideresults()
+    ButtonHideResult = Button((0, 255, 0), display.current_w //6*5 +25, 50, display.current_w//6-50, 42, "Ergebnis verstecken", 21)
+    ButtonHideResult.draw(screen,"comicsans", outline=(0, 0, 0))
+    print("HHHHHHHHHHHHHHHHHH")
+    buttonHideResultonscreen = True
+    if not istesting:
+        if resulttype == "Vote":
+            votetype = data["type"]
+        elif resulttype == "Elimination":
+            deathtype = data["type"]
+        playerlist = data["players"]
+    else:
+        votetype = "love"
+        playerlist = testplayerlist
+    text = ""
+    if resulttype == "Vote":
+        if votetype == "witch_kill":
+            text = "Du hast " + playerlist[0] + " getötet."
+        elif votetype == "witch_heal":
+            text = "Du hast " + playerlist[0] + " geheilt."
+        elif votetype == "werewolf":
+            text = "Die Werwölfe haben " + playerlist[0] + " getötet."
+        elif votetype == "alpha":
+            text = "Du als Alpha hast " + playerlist[0] + " getötet."
+        elif votetype == "love":
+            text = "Du hast " + playerlist[0] + " und " + playerlist[1] + " verliebt."
+        elif votetype == "see":
+            text = "Du hast die Rolle von " + playerlist[0] + " gesehen. " + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+        elif votetype == "nominate_mayor":
+            pass #KEIN PLAN WIE DAS GEMACHT WERDEN SOLL DANN SPÄTER WENN ALLE PINGS FERTIG SIND VIELLEICHT IST DAS AUCH USELESS
+        elif votetype == "mayor":
+            text = playerlist[0] + " wurde zum Bürgermeister gewählt."
+        elif votetype == "nominate_hanging":
+            pass #KEIN PLAN WIE DAS GEMACHT WERDEN SOLL DANN SPÄTER WENN ALLE PINGS FERTIG SIND VIELLEICHT IST DAS AUCH USELESS
+    if resulttype == "Elimination":
+        if deathtype == "night":
+            text = playerlist[0] + " wurde in der Nacht getötet. " + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+        elif deathtype == "hanging":
+            text = playerlist[0] + " wurde erhängt. " + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+        elif deathtype == "hunter":
+            text = playerlist[0] + "wurde vom Jäger mit in den Tod genommen." + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+    if text != "":
+        
+        textlist = list(text)
+        temp1 = []
+        temp2 = []
+        temp3 = ""
+        j = 0
+        for i in textlist:
+            temp1.append(i)
+            j += 1
+            if j >= 13:
+                if i == " ":
+                    for k in range(j):
+                        temp3 +=temp1[k]
+                    temp2.append(temp3)
+                    temp1 = []
+                    temp3 = ""
+                    j = 0
+        for i in temp1:
+            temp3 += i
+        temp2.append(temp3)
+        print(temp2)
+        font = pygame.font.SysFont('comicsans', 25)
+        text_surface = font.render("Ergebnis:", False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w // 12 * 11, 190))
+        screen.blit(text_surface, text_rect)
+        font = pygame.font.SysFont('comicsans', 20)
+        for i in temp2:            
+            text_surface = font.render(i, False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 12*11, 230 + temp2.index(i)*25))
+            screen.blit(text_surface, text_rect) 
+    pygame.display.flip()
+
+def hideresults():
+    """
+    übermalt die Ergebnisse um Platz für neuen Text zu machen
+    """
+    global buttonHideResultonscreen
+    drawover_rect = pygame.Rect(display.current_w//6*5+10,0, display.current_w//6-10, display.current_h//2)
+    pygame.draw.rect(screen, (255,255,255), drawover_rect)
+    buttonHideResultonscreen = False
     pygame.display.flip()
 
 def onquit():
@@ -575,14 +694,14 @@ while True:
                 triggerfakevote()
             pass
         if pingtype == "VoteResultPing":
-            pass
+            displayresults(data, "Vote")
         if pingtype == "GameEndPing":
             if data["result"] == "win":
                 setstate(windowtypes.win)
             elif data["result"] == "lose":
                 setstate(windowtypes.lose)
         if pingtype == "EliminationPing":
-            pass
+            displayresults(data, "Elimination")
 
 
         sleep(1)
@@ -604,6 +723,10 @@ while True:
                 elif ButtonShowRoleonscreen:
                     if ButtonShowRole.isOver(event.pos):
                         showrole()
+
+                if buttonHideResultonscreen:
+                    if ButtonHideResult.isOver(event.pos):
+                        hideresults()
             if inputonscreen:
                 if input_rect.collidepoint(event.pos): 
                     active = True
@@ -633,7 +756,7 @@ while True:
                 elif event.key != pygame.K_RETURN: 
                     user_text += event.unicode
                 # print usertext when enter is pressed                
-                elif event.key == pygame.K_RETURN:
+                elif event.key == pygame.K_RETURN and user_text != "":
                     print(user_text)
                     if windowstate == windowtypes.login:
                         if not ipconfirmed and not ishosting:
