@@ -190,9 +190,13 @@ class ServerGame():
                 print(self.__mailbox)
                 self.__serverState = "Game"
             case 'VoteAnswerPing':
-                self.__computeThisVotePing(playerID, pingData)
-                if self.__checkForThisVotingsEnd():
-                    self.__countThisVotes()
+                if self.__serverState == "Voting":
+                    self.__computeThisVotePing(playerID, pingData)
+                    if self.__checkForThisVotingsEnd():
+                        self.__countThisVotes()
+                elif self.__serverState == "FullNomination":
+                    print(f"VoteAnswerPing von [{playerID}] übersprungen, da die Nominierung bereits voll ist.")
+                else: print(f"VoteAnswerPing von [{playerID}] übersprungen, da kein Voting stattfindet.")
             case _:
                 print(f"Ping von {playerID} übersprungen da Typ unbekannt: {pingType}")
                 # raise Exception("Unknown ping Type from IP ["+ip+"]")
@@ -267,8 +271,11 @@ class ServerGame():
                 votePing["dummy"] = "True"
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], votingPlayers)
                 
+                
         self.__serverState = "Voting"
 
+    ## VotePing Verarbeitung ##
+    
     def __computeVotePing(self, playerName, voting):
         """
         Verarbeitet den VotePing eines Spielers
@@ -280,6 +287,8 @@ class ServerGame():
         self.__pendingVotingPlayers.remove(playerName)
         self.__votings[playerName] = voting
         
+    ## Ende des Votings überprüfen ##
+    
     def __checkForVotingsEnd(self) -> bool:
         """
         Prüft, ob alle Spieler gevotet haben
@@ -289,6 +298,20 @@ class ServerGame():
         """
         return self.__pendingVotingPlayers == set()
     
+    def __checkForNominationsEnd(self) -> bool:
+        """
+        Prüft, ob alle Spieler gevotet haben
+
+        Returns:
+            bool: True wenn alle Spieler gevotet haben
+        """
+        if len(self.__votings.keys()) >= 3:
+            self.__serverState = "FullNomination"
+            return True
+        return False
+    
+    ## Voting auszählen ##
+    
     def __countVotesWithReveal(self, revealFor : list | str):
         """
         Zählt die Abstimmung aus und sendet das Ergebnis an die ausgewählten Spieler
@@ -296,6 +319,8 @@ class ServerGame():
         Args:
             revealFor (list | str): Liste der Spieler, an die gesendet werden soll, wenn für alle dann stattdessen der String "alle"
         """
+        self.__serverState = "CountVote"
+        
         resultList = dict()
         
         for vote in self.__votings.values():
@@ -317,6 +342,8 @@ class ServerGame():
         
         if revealFor == "all": revealFor = []
         self.__broadcastPing(Ping.fromData("VoteResultPing", resultPing, "server"), revealFor)
+        
+        self.__serverState = "Game"
     
     
     #def computeNightVoteCycle(playerDatabase, nightCounter):

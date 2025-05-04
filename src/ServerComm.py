@@ -14,6 +14,9 @@ PORT = 65432
 
 
 def startServer():
+    """
+    Server starten
+    """
     print("Server wird gestartet...")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("", PORT))
@@ -65,6 +68,9 @@ def ping(selector, client):
 
 
 if __name__ == '__main__':
+    """
+    ServerComm ausführen
+    """
     startServer()
     while True:
         for key, mask in selector.select():
