@@ -119,6 +119,8 @@ def onstatechange(state):
             input_rect = pygame.Rect(display.current_w // 2 - 90, display.current_h // 2 + 50, 180, 32)
 
             inputonscreen = True
+            pygame.draw.rect(screen, (0,0,0), background_rect)
+            pygame.draw.rect(screen, color, input_rect)
             font = pygame.font.SysFont('comicsans', 30)
             text_surface = font.render("Login", False, (0,0,0))
             text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))        
@@ -174,9 +176,9 @@ def onstatechange(state):
         line_rect = pygame.Rect(display.current_w//6*5, 0, 5, display.current_h)
         pygame.draw.rect(screen, (0, 0, 0), line_rect)
         inputonscreen = True
-        background_rect = pygame.Rect(display.current_w // 6 * 5 + 15, display.current_h // 8*6.5, display.current_w // 6 - 30, 52)
-        input_rect = pygame.Rect(display.current_w // 6 * 5 + 20, display.current_h //8 *6.5+5, display.current_w // 6 - 40, 42)
-        pygame.draw.rect(screen, (255,255,255), background_rect)
+        background_rect = pygame.Rect(display.current_w // 6 * 5 + 15, display.current_h // 8*6.5, display.current_w // 6 - 30, 42)
+        input_rect = pygame.Rect(display.current_w // 6 * 5 + 20, display.current_h //8 *6.5+5, display.current_w // 6 - 40, 32)
+        pygame.draw.rect(screen, (0,0,0), background_rect)
         pygame.draw.rect(screen, color, input_rect)
         print(background_rect)
         pygame.display.flip()
@@ -427,24 +429,10 @@ while True:
   
       # if user types QUIT then the screen will close 
         if event.type == pygame.QUIT: 
-            onquit()
+            if not istesting:
+                onquit()
             pygame.quit() 
             sys.exit() 
-        if inputonscreen:
-            if event.type == pygame.MOUSEBUTTONDOWN: 
-                if input_rect.collidepoint(event.pos): 
-                    active = True
-                else: 
-                    active = False
-                if windowstate == windowtypes.lobby and False: #AUCH RAUSGENOMMEN
-                    if ButtonStart.isOver(event.pos):
-                        print("Spiel starten")
-                        setstate(windowtypes.game)
-                    elif ButtonLeft.isOver(event.pos):
-                        pass
-                        # Hier Code für vorherigen Spielermodel einfügen
-                    elif ButtonRight.isOver(event.pos):
-                        pass
         if event.type == pygame.MOUSEBUTTONDOWN:
             if windowstate == windowtypes.game:
                 if ButtonHideRoleonscreen:
@@ -453,51 +441,63 @@ while True:
                 if ButtonShowRoleonscreen:
                     if ButtonShowRole.isOver(event.pos):
                         showrole()
-
-
-            if event.type == pygame.KEYDOWN: 
-                if active:
-                    # Check for backspace 
-                    if event.key == pygame.K_BACKSPACE: 
-                        # get text input from 0 to -1 i.e. end. 
-                        user_text = user_text[:-1] 
-                    # Unicode standard is used for string formation 
-                    elif event.key != pygame.K_RETURN: 
-                        user_text += event.unicode
-                    # print usertext when enter is pressed                
-                    elif event.key == pygame.K_RETURN:
-                        print(user_text)
-                        if windowstate == windowtypes.login:
-                            if not ipconfirmed and not ishosting:
-                                if confirmip(user_text):
-                                    filllogintext()
-                                    confirmusername("")
-                                    user_text = ""
-                            elif not usernameconfirmed:
-                                confirmusername(user_text)
-                        elif windowstate == windowtypes.game:
-                            pass
-            if windowstate != windowtypes.lobby:
+            if inputonscreen:
+                if input_rect.collidepoint(event.pos): 
+                    active = True
+                else: 
+                    active = False
                 if active: 
                     color = color_active 
                 else: 
                     color = color_passive 
+                pygame.draw.rect(screen, (0,0,0), background_rect)
+                pygame.draw.rect(screen, color, input_rect) 
+                
+                text_surface = base_font.render(user_text, True, (255, 255, 255)) 
+                
+                # render at position stated in arguments 
+                screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
+                pygame.display.flip()
+
+
+        if event.type == pygame.KEYDOWN: 
+            if active:
+                # Check for backspace 
+                if event.key == pygame.K_BACKSPACE: 
+                    # get text input from 0 to -1 i.e. end. 
+                    user_text = user_text[:-1] 
+                # Unicode standard is used for string formation 
+                elif event.key != pygame.K_RETURN: 
+                    user_text += event.unicode
+                # print usertext when enter is pressed                
+                elif event.key == pygame.K_RETURN:
+                    print(user_text)
+                    if windowstate == windowtypes.login:
+                        if not ipconfirmed and not ishosting:
+                            if confirmip(user_text):
+                                filllogintext()
+                                confirmusername("")
+                                user_text = ""
+                        elif not usernameconfirmed:
+                            confirmusername(user_text)
+                    elif windowstate == windowtypes.game:
+                        pass
                     
                 # draw rectangle and argument passed which should be on screen
-                if not usernameconfirmed or windowstate == windowtypes.game: 
-                    pygame.draw.rect(screen, (0,0,0), background_rect)
-                    pygame.draw.rect(screen, color, input_rect) 
-                    
-                    text_surface = base_font.render(user_text, True, (255, 255, 255)) 
-                    
-                    # render at position stated in arguments 
-                    screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
-                    
-                    # set width of textfield so that text cannot get outside of user's text input 
-                    input_rect.w = max(180, text_surface.get_width()+10) 
-                    if windowstate == windowtypes.lobby:
-                        drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
-                        pygame.draw.rect(screen, (255,25,255), drawover_rect)
+ 
+                pygame.draw.rect(screen, (0,0,0), background_rect)
+                pygame.draw.rect(screen, color, input_rect) 
+                
+                text_surface = base_font.render(user_text, True, (255, 255, 255)) 
+                
+                # render at position stated in arguments 
+                screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
+                
+                # set width of textfield so that text cannot get outside of user's text input 
+                input_rect.w = max(180, text_surface.get_width()+10, input_rect.w) 
+                if windowstate == windowtypes.lobby:
+                    drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
+                    pygame.draw.rect(screen, (255,25,255), drawover_rect)
                         
                 
                 pygame.display.flip()
