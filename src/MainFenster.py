@@ -756,7 +756,7 @@ while True:
                 elif event.key != pygame.K_RETURN: 
                     user_text += event.unicode
                 # print usertext when enter is pressed                
-                elif event.key == pygame.K_RETURN and user_text != "":
+                elif event.key == pygame.K_RETURN:
                     print(user_text)
                     if windowstate == windowtypes.login:
                         if not ipconfirmed and not ishosting:
