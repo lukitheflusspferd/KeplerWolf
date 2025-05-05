@@ -45,9 +45,8 @@ def Voting(players, type, ownName, dummy):
         if notyetvoted: print('Name nicht erkannt')
     return Ping.fromData("VoteAnswerPing", vote, ownName)
 
-def Nominate(players, type):
-    global mailbox
-    if type == announcementtypes.mayor: print('Nominiere einen Spieler zum Bürgermeister:')
+def Nominate(players, type, ownName):
+    if type == "nominate_mayor": print('Nominiere einen Spieler zum Bürgermeister:')
     else: print('Klage einen Spieler an')
     namesavailable = 'Spieler verfügbar: '
     j = 0
@@ -64,7 +63,7 @@ def Nominate(players, type):
         for i in players:
             if Vote == i: notyetnominated = False
         if notyetnominated: print('Name nicht erkannt')
-    mailbox.append(Vote)
+    return Ping.fromData("VoteAnswerPing", Vote, ownName)
 
 # ARRAY SLOTS JE NACH FINALER FORMATIERUNG ANPASSEN
 def displaydirectresults(player, type):

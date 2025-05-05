@@ -1,6 +1,6 @@
 from ClassPlayer import Player
 import Ping
-from Vote import Voting
+from Vote import Voting, Nominate
 
 clientPlayerData = None
 playerData = None
@@ -37,8 +37,10 @@ def computePing(message: dict, ownName):
         voteType = messageData["type"]
         players = messageData["players"]
         dummy = messageData["dummy"]
-
-        vote = Voting(players, voteType, ownName, dummy)
+        if voteType in {'nominate_mayor', 'nominate_hanging'}:
+            vote = Nominate(players, voteType, ownName)
+        else:
+            vote = Voting(players, voteType, ownName, dummy)
         mailbox.append(vote)
         # print(mailbox)
 

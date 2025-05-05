@@ -1,4 +1,4 @@
-def fromData(type: str, data: any, origin: str) -> dict[str, str, str]:
+def fromData(type: str, data: any, origin: str) -> dict[str, str]:
     """
     Gibt einen einheitlich formatierten Ping als Wörterbuch zurück, welches später in ein json-Objekt umgewandelt werden muss
 

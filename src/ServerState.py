@@ -1,13 +1,14 @@
-import Ping
 
 #class ServerSubState():
 #    def __init__(self, onEnter, onPing, onFinish):
 #        self.__onEnter = onEnter
 #        self.__onPing = onPing
 
+import copy
+
 import ClassPlayer
+import Ping
 import Roles
-import ClassPlayer
 
 EMPTYPING = Ping.fromData("EmptyPing", "", "server")
 
@@ -29,7 +30,7 @@ class ServerGame():
             self.__rolesToPlayernames[role.getId()] = []
         self.__rolesToPlayernames["villager"] = []
 
-        self.__playerDataBase : dict[ClassPlayer.Player] = dict()
+        self.__playerDataBase : dict[str, ClassPlayer.Player] = dict()
         
         self.__currentVoting = None
         self.__computeThisVotePing = lambda playerName, voting : None
@@ -41,10 +42,12 @@ class ServerGame():
             voting (str): Name des Spielers, für den abgestimmt wurde, oder leerer String
         """
         
-        self.__checkForThisVotingsEnd = None
-        self.__countThisVotes = None
+        self.__checkForThisVotingsEnd : function = None
+        self.__countThisVotes : function = None
         self.__pendingVotingPlayers = set()
         self.__votings = dict()
+        
+        self.__voteStorage = None
     
     
     ### Verwaltung von Spielernamen ###
@@ -95,11 +98,10 @@ class ServerGame():
                 return Ping.fromData("ConsoleGameInit", self.__playerNamesPreGame, "server")
             
             case "voteTrigger":
-                # vote = dict()
-                # vote["type"] = "mayor"
-                # vote["players"] = self.__playerNamesPreGame
-                # self.__broadcastPing(Ping.fromData("VotePing", vote, "server"), [])
-                self.__initVoting("werewolf")
+                self.__initVoting("nominate_hanging")
+                
+            case "voteTrigger2":
+                self.__initVoting("hanging")
                 
                     
         return EMPTYPING
@@ -185,7 +187,6 @@ class ServerGame():
                     ping = Ping.fromData("GameStartPing", {"data": repr(self.__playerDataBase[playerName]), "players": list(pingData.keys())}, "server")
                     self.__mailbox[playerName].append(ping)
                     
-
                 print("Datenbank initialisiert. Spiel gestartet.")
                 print(self.__mailbox)
                 self.__serverState = "Game"
@@ -196,7 +197,7 @@ class ServerGame():
                         self.__countThisVotes()
                 elif self.__serverState == "FullNomination":
                     print(f"VoteAnswerPing von [{playerID}] übersprungen, da die Nominierung bereits voll ist.")
-                else: print(f"VoteAnswerPing von [{playerID}] übersprungen, da kein Voting stattfindet.")
+                else: print(f"VoteAnswerPing von [{playerID}] übersprungen, da kein Voting stattfindet. (Der aktuelle State ist [{self.__serverState}])")
             case _:
                 print(f"Ping von {playerID} übersprungen da Typ unbekannt: {pingType}")
                 # raise Exception("Unknown ping Type from IP ["+ip+"]")
@@ -264,12 +265,47 @@ class ServerGame():
                     else:
                         possiblePlayers.extend(v)
                 
-                self.__countThisVotes = lambda : self.__countVotesWithReveal(votingPlayers)
+                self.__countThisVotes = lambda : self.__countVotes(votingPlayers)
                 
                 votePing["players"] = possiblePlayers
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), votingPlayers)
                 votePing["dummy"] = "True"
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], votingPlayers)
+                
+            case 'nominate_mayor' | 'nominate_hanging':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForNominationsEnd
+                
+                self.__countThisVotes = self.__countNominations
+                
+                possiblePlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        possiblePlayers.append(player.getname())
+                
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), possiblePlayers)
+                
+            case 'mayor' | 'hanging':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+                
+                votingPlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        votingPlayers.append(player.getname())
+                
+                self.__countThisVotes = lambda : self.__countVotes(votingPlayers)
+                
+                possiblePlayers = self.__voteStorage
+                
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), votingPlayers)
+            
+            case _:
+                raise Exception(f"Unbekannter Vote-Typ: {voteType}")
                 
                 
         self.__serverState = "Voting"
@@ -284,7 +320,11 @@ class ServerGame():
             playerName (str): Spieler, welcher abgestimmt hat
             voting (str): Spieler, für den abgestimmt wurde, oder leerer String
         """
-        self.__pendingVotingPlayers.remove(playerName)
+        try:
+            self.__pendingVotingPlayers.remove(playerName)
+            self.__votings[playerName] = voting
+        except KeyError:
+            pass
         self.__votings[playerName] = voting
         
     ## Ende des Votings überprüfen ##
@@ -308,16 +348,16 @@ class ServerGame():
         if len(self.__votings.keys()) >= 3:
             self.__serverState = "FullNomination"
             return True
-        return False
+        return self.__pendingVotingPlayers == set()
     
     ## Voting auszählen ##
     
-    def __countVotesWithReveal(self, revealFor : list | str):
+    def __countVotes(self, revealFor : list | str):
         """
         Zählt die Abstimmung aus und sendet das Ergebnis an die ausgewählten Spieler
 
         Args:
-            revealFor (list | str): Liste der Spieler, an die gesendet werden soll, wenn für alle dann stattdessen der String "alle"
+            revealFor (list | str): Liste der Spieler, an die gesendet werden soll, wenn leer, dann an niemanden, wenn für alle dann stattdessen der String "alle"
         """
         self.__serverState = "CountVote"
         
@@ -340,11 +380,40 @@ class ServerGame():
             "type": self.__currentVoting
         }
         
-        if revealFor == "all": revealFor = []
-        self.__broadcastPing(Ping.fromData("VoteResultPing", resultPing, "server"), revealFor)
+        if revealFor != []:
+            if revealFor == "all": revealFor = []
+            self.__broadcastPing(Ping.fromData("VoteResultPing", resultPing, "server"), revealFor)
         
         self.__serverState = "Game"
     
+    def __countNominations(self):
+        """
+        Nimmt die (theoretisch) höchstens drei vorhandenen Nominierungen und sendet diese an alle Spieler und speichert das Ergebnis in self.__voteStorage
+        """
+        self.__serverState = "CountVote"
+        
+        nominations = []
+        
+        for vote in self.__votings.values():
+            if vote == "": continue
+            if not vote in nominations:
+                nominations.append(vote)
+                
+        if len(nominations) > 3:
+            nominations = nominations[:3]
+        
+        resultPing = {
+            "names": nominations,
+            "type": self.__currentVoting
+        }
+        
+        self.__broadcastPing(Ping.fromData("VoteResultPing", resultPing, "server"), [])
+        
+        self.__voteStorage = copy.deepcopy(nominations)
+        
+        print(self.__voteStorage)
+        
+        self.__serverState = "Game"
     
     #def computeNightVoteCycle(playerDatabase, nightCounter):
     #    rolesToPlayers = dict()
