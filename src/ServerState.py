@@ -53,6 +53,8 @@ class ServerGame():
         """
         Menge der Spieler, welche in der Nacht gestorben sind
         """
+        
+        self.__dayCounter = 0
     
     
     ### Verwaltung von Spielernamen ###
@@ -108,6 +110,8 @@ class ServerGame():
             case "voteTrigger2":
                 self.__initVoting("hanging")
                 
+            case "voteTrigger3":
+                self.__initVoting("werewolf")
                     
         return EMPTYPING
     
@@ -278,7 +282,7 @@ class ServerGame():
                     else:
                         possiblePlayers.extend(v)
                 
-                self.__countThisVotes = lambda : self.__countVotes(votingPlayers)
+                self.__countThisVotes = lambda : self.__countVotes(votingPlayers, lambda playerName : self.__killPlayerAtNight(playerName))
                 
                 votePing["players"] = possiblePlayers
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), votingPlayers)

@@ -31,6 +31,8 @@ def computeCommand(cmd):
             return Ping.fromData("ConsoleCommandPing", "voteTrigger", "console")
         case "trigger vote 2":
             return Ping.fromData("ConsoleCommandPing", "voteTrigger2", "console")
+        case "trigger vote 3":
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger3", "console")        
         case _:
             print("Fehler: Unbekannter Befehl")
             return Ping.fromData("EmptyPing", "", "console")
