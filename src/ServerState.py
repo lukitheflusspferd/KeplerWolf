@@ -48,6 +48,11 @@ class ServerGame():
         self.__votings = dict()
         
         self.__voteStorage = None
+        
+        self.__pendingKills : dict[str, str] = dict()
+        """
+        Wörterbuch mit Zuordnung Spieler -> Todesursache
+        """
     
     
     ### Verwaltung von Spielernamen ###
@@ -195,6 +200,8 @@ class ServerGame():
                     self.__computeThisVotePing(playerID, pingData)
                     if self.__checkForThisVotingsEnd():
                         self.__countThisVotes()
+                    if self.__serverState == "FullNomination":
+                        print(f"VoteAnswerPing von [{playerID}] übersprungen, da die Nominierung bereits voll ist.")
                 elif self.__serverState == "FullNomination":
                     print(f"VoteAnswerPing von [{playerID}] übersprungen, da die Nominierung bereits voll ist.")
                 else: print(f"VoteAnswerPing von [{playerID}] übersprungen, da kein Voting stattfindet. (Der aktuelle State ist [{self.__serverState}])")
@@ -334,7 +341,7 @@ class ServerGame():
         Prüft, ob alle Spieler gevotet haben
 
         Returns:
-            bool: True wenn alle Spieler gevotet haben
+            bool: True wenn alle Spieler eine Antwort gesendet haben
         """
         return self.__pendingVotingPlayers == set()
     
@@ -343,21 +350,21 @@ class ServerGame():
         Prüft, ob alle Spieler gevotet haben
 
         Returns:
-            bool: True wenn alle Spieler gevotet haben
+            bool: True wenn alle Spieler eine Antwort gesendet haben
         """
         if len(self.__votings.keys()) >= 3:
             self.__serverState = "FullNomination"
-            return True
         return self.__pendingVotingPlayers == set()
     
     ## Voting auszählen ##
     
-    def __countVotes(self, revealFor : list | str):
+    def __countVotes(self, revealFor : list | str, resultAction : function = None):
         """
         Zählt die Abstimmung aus und sendet das Ergebnis an die ausgewählten Spieler
 
         Args:
             revealFor (list | str): Liste der Spieler, an die gesendet werden soll, wenn leer, dann an niemanden, wenn für alle dann stattdessen der String "alle"
+            resultAction (function): Funktion, welche die Argumente (resultPlayerId : str, cause : str) hat, also mit dem gewinnenden Spieler und dem Grund (also z.B. Todesursache oder Bürgermeisterwahl) aufgerufen wird. 
         """
         self.__serverState = "CountVote"
         
@@ -373,7 +380,11 @@ class ServerGame():
         for playerName, voteResult in resultList.items():
             if voteResult > highestResult[1]:
                 highestResult = (playerName, voteResult)
-                
+        
+        # Folgeaktion ausführen
+        if (highestResult != None) and (resultAction != None):
+            resultAction(highestResult)
+        
         
         resultPing = {
             "names": [highestResult[0]],
@@ -415,6 +426,27 @@ class ServerGame():
         
         self.__serverState = "Game"
     
+    
+    
+    ## Aktionen, welche auf ein Voting folgen ##
+    
+    def __killPlayer(playerId : str, cause : str):
+        playerData = self.__playerDataBase[playerId]
+        playerData.setisdead(True)
+        
+        self.__playerDataBase[playerId] = copy.deepcopy(playerData)
+        
+        self.__mailbox[playerId].append(Ping.fromData("stateChangePing", repr(playerData), "server"))
+        
+        pingData = {
+            names : [playerId],
+            type : cause 
+        }
+        
+        
+        self.__broadcastPing(Ping.fromData("eliminationPing", ping, "server"), [])
+    
+     
     #def computeNightVoteCycle(playerDatabase, nightCounter):
     #    rolesToPlayers = dict()
     #    print(playerDatabase)
