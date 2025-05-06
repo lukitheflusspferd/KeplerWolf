@@ -530,6 +530,7 @@ class ServerGame():
             playerID (str): Name des Spielers
         """
         self.__playerDataBase[playerID].setismayor(True)
+        self.__mailbox[playerID].append(Ping.fromData("StateChangePing", repr(self.__playerDataBase[playerID]), "server"))
     
     #def computeNightVoteCycle(playerDatabase, nightCounter):
     #    rolesToPlayers = dict()

@@ -10,24 +10,34 @@ class announcementtypes(Enum):
     lovers = 5
     hunter = 6
 
-def Voting(players, type, ownName, dummy):
+def Voting(players, voteType, ownName, dummy):
     print("Voting wird ausgeführt")
     
     if dummy == "True":
-        _ = input(f"Dummy-Voting des Typs [{type}]. Bitte mit Enter bestätigen")
+        _ = input(f"Dummy-Voting des Typs [{voteType}]. Bitte mit Enter bestätigen")
         return Ping.fromData("VoteAnswerPing", "", ownName)
     
-    if type == "werewolf": 
-        votetype = 'zum töten durch Werwölfe: '
-    elif type == "mayor":
-        votetype = 'zur Bürgermeisterwahl: '
-    elif type == "hanging":
-        votetype = 'zum Anklagen: '
-    elif type == "alpha": 
-        votetype = 'zum töten durch den ALPHA: '
-    elif type == "hunter":
-        votetype = 'zum töten durch den Jäger: '
-    namesavailable = 'Spieler verfügbar ' + votetype
+    if voteType == "werewolf": 
+        voteSuffix = 'zum töten durch Werwölfe: '
+    elif voteType == "mayor":
+        voteSuffix = 'zur Bürgermeisterwahl: '
+    elif voteType == "hanging":
+        voteSuffix = 'zum Hinrichten: '
+    elif voteType == "alpha": 
+        voteSuffix = 'zum töten durch den ALPHA: '
+    elif voteType == "hunter":
+        voteSuffix = 'zum Töten durch den Jäger: '
+    elif voteType == "see":
+        voteSuffix = 'zum Ansehen der Rolle: '
+    elif voteType == "witch_kill":
+        voteSuffix = 'zum Töten durch die Hexe: '
+    elif voteType == "witch_heal":
+        voteSuffix = 'zum Heilen durch die Hexe: '
+    elif voteType == "love1":
+        voteSuffix = 'als erster Liebespartner: '
+    elif voteType == "love2":
+        voteSuffix = 'als zweiter Liebespartner: '
+    namesavailable = 'Spieler verfügbar ' + voteSuffix
     j = 0
     for i in players:
         if j == 0:
