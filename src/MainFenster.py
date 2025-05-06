@@ -6,6 +6,7 @@ from ClassButton import Button
 import pygame
 import pygame.freetype
 from pygame.locals import *
+import os
 import sys   
 import socket
 import json
@@ -190,9 +191,11 @@ def onstatechange(state):
         pygame.draw.rect(screen, color, input_rect)
         print(background_rect)
         pygame.display.flip()
-        displayrole()
-        displayresults("test", "Vote")     #NUR ZUM   
-        triggerfakevote() #TESTEN
+        if istesting:
+            displayrole()
+            displayresults("test", "Vote")     #NUR ZUM   
+            displaypicture(display.current_w //2, display.current_h // 2, 100, 100, "Player1.png")
+            triggerfakevote() #TESTEN
         
 global ipconfirmed
 ipconfirmed = False            
@@ -621,6 +624,18 @@ def hideresults():
     drawover_rect = pygame.Rect(display.current_w//6*5+10,0, display.current_w//6-10, display.current_h//2)
     pygame.draw.rect(screen, (255,255,255), drawover_rect)
     buttonHideResultonscreen = False
+    pygame.display.flip()
+
+def displaypicture(x, y, width, height, image):
+    """
+    zeigt ein Bild an
+    """
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(current_dir,"..", "assets\\")
+    image = pygame.image.load(image_path + image)
+    #image = pygame.image.load(image)
+    image = pygame.transform.scale(image,(width, height))
+    screen.blit(image, (x, y))
     pygame.display.flip()
 
 def onquit():
