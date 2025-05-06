@@ -338,6 +338,50 @@ class ServerGame():
                 votePing["players"] = possiblePlayers
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), votingPlayers)
             
+            case 'see_seer':
+                votePing["type"] = 'see'
+
+                seeingPlayer = self.__rolesToPlayernames["seer"]
+                
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+                
+                self.__countThisVotes = lambda : self.__countVotes([], lambda target : self.__revealRoleSilently(target, seeingPlayer))
+                
+                possiblePlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        possiblePlayers.append(player.getname())
+                
+                votePing["players"] = possiblePlayers
+                
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), seeingPlayer)
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], seeingPlayer)
+                
+            case 'see_girl':
+                votePing["type"] = 'see'
+
+                seeingPlayer = self.__rolesToPlayernames["littlegirl"]
+                
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+                
+                self.__countThisVotes = lambda : self.__countVotes([], lambda target : self.__revealRoleSilently(target, seeingPlayer))
+                
+                possiblePlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        possiblePlayers.append(player.getname())
+                
+                votePing["players"] = possiblePlayers
+                
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), seeingPlayer)
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], seeingPlayer)
+
             case _:
                 raise Exception(f"Unbekannter Vote-Typ: {voteType}")
                 

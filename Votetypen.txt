@@ -1,6 +1,7 @@
 "love1" -> Erster Spieler zum Verlieben
 "love2" -> Zweiter Spieler zum Verlieben
 "see" -> Rolle eines Spielers betrachten (Seher, Blinzelmädchen)
+    serverintern unterteilt in "see_seer" und "see_girl"
 "hunter" -> Spieler erschießen (Jäger)
 "werewolf" -> Tod durch Werwölfe
 "alpha" -> Tod durch Alpha
