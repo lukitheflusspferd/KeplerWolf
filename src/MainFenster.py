@@ -7,6 +7,7 @@ import pygame
 import pygame.freetype
 from pygame.locals import *
 import os
+import math
 import sys   
 import socket
 import json
@@ -18,6 +19,8 @@ global answer
 global ownName
 ownName = None
 player = None
+imagepositionsx= []
+imagepositionsy= []
 
 class windowtypes(Enum):
     login = 1
@@ -26,8 +29,11 @@ class windowtypes(Enum):
     win = 4
     lose = 5
 
+playerlist = []
+alivelist = []
 testplayer = Player("Test")
 testplayerlist = ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10"]
+testalivelist = [True, True, True, True, True, True, True, True, True, False]
 testvoteoptionlist = ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10", True, False]
 
 global inputonscreen
@@ -194,8 +200,11 @@ def onstatechange(state):
         if istesting:
             displayrole()
             displayresults("test", "Vote")     #NUR ZUM   
-            displaypicture(display.current_w //2, display.current_h // 2, 100, 100, "Player1.png")
+            displayplayerpictures(testplayerlist, testalivelist)
             triggerfakevote() #TESTEN
+        else:
+            displayrole()
+            displayplayerpictures(playerlist, alivelist)
         
 global ipconfirmed
 ipconfirmed = False            
@@ -316,8 +325,7 @@ def updatePlayerList(data):
     Zeigt die aktuelle Spielerliste in der Lobby an
     """
     if data != []:
-        for i in data:
-            print("HHHHHHHHHHHHHHHH" + i)
+        global playerlist, alivelist
         drawover_rect = pygame.Rect(0, 0, display.current_w//4-10 , display.current_h)
         pygame.draw.rect(screen, (255,255,255), drawover_rect)
         print("übergemalt")
@@ -327,12 +335,20 @@ def updatePlayerList(data):
         text_rect = text_surface.get_rect(center=(display.current_w // 8, 100))
         screen.blit(text_surface, text_rect)
         font = pygame.font.SysFont('comicsans', 20)
+        temp = []
         for i in data:
             text_surface = font.render(i, False, (0,0,0))
             text_rect = text_surface.get_rect(center=(display.current_w // 8, 150 + data.index(i) * 30))
             screen.blit(text_surface, text_rect)
+            temp.append(i)
             print("name gemacht und so")
         pygame.display.flip()
+        playerlist = temp
+        temp = []
+        for i in playerlist:
+            temp.append[True]
+        alivelist = temp
+
 
 def hiderole():
     """
@@ -552,37 +568,38 @@ def displayresults(data, resulttype):
             votetype = data["type"]
         elif resulttype == "Elimination":
             deathtype = data["type"]
-        playerlist = data["players"]
+        playerlist1 = data["players"]
     else:
         votetype = "love"
-        playerlist = testplayerlist
+        playerlist1 = testplayerlist
     text = ""
     if resulttype == "Vote":
         if votetype == "witch_kill":
-            text = "Du hast " + playerlist[0] + " getötet."
+            text = "Du hast " + playerlist1[0] + " getötet."
         elif votetype == "witch_heal":
-            text = "Du hast " + playerlist[0] + " geheilt."
+            text = "Du hast " + playerlist1[0] + " geheilt."
         elif votetype == "werewolf":
-            text = "Die Werwölfe haben " + playerlist[0] + " getötet."
+            text = "Die Werwölfe haben " + playerlist1[0] + " getötet."
         elif votetype == "alpha":
-            text = "Du als Alpha hast " + playerlist[0] + " getötet."
+            text = "Du als Alpha hast " + playerlist1[0] + " getötet."
         elif votetype == "love":
-            text = "Du hast " + playerlist[0] + " und " + playerlist[1] + " verliebt."
+            text = "Du hast " + playerlist1[0] + " und " + playerlist1[1] + " verliebt."
         elif votetype == "see":
-            text = "Du hast die Rolle von " + playerlist[0] + " gesehen. " + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+            text = "Du hast die Rolle von " + playerlist1[0] + " gesehen. " + playerlist1[0] + " hatte die Rolle " + playerlist1[1] + "."
         elif votetype == "nominate_mayor":
             pass #KEIN PLAN WIE DAS GEMACHT WERDEN SOLL DANN SPÄTER WENN ALLE PINGS FERTIG SIND VIELLEICHT IST DAS AUCH USELESS
         elif votetype == "mayor":
-            text = playerlist[0] + " wurde zum Bürgermeister gewählt."
+            text = playerlist1[0] + " wurde zum Bürgermeister gewählt."
         elif votetype == "nominate_hanging":
             pass #KEIN PLAN WIE DAS GEMACHT WERDEN SOLL DANN SPÄTER WENN ALLE PINGS FERTIG SIND VIELLEICHT IST DAS AUCH USELESS
     if resulttype == "Elimination":
         if deathtype == "night":
-            text = playerlist[0] + " wurde in der Nacht getötet. " + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+            text = playerlist1[0] + " wurde in der Nacht getötet. " + playerlist1[0] + " hatte die Rolle " + playerlist1[1] + "."
         elif deathtype == "hanging":
-            text = playerlist[0] + " wurde erhängt. " + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+            text = playerlist1[0] + " wurde erhängt. " + playerlist1[0] + " hatte die Rolle " + playerlist1[1] + "."
         elif deathtype == "hunter":
-            text = playerlist[0] + "wurde vom Jäger mit in den Tod genommen." + playerlist[0] + " hatte die Rolle " + playerlist[1] + "."
+            text = playerlist1[0] + "wurde vom Jäger mit in den Tod genommen." + playerlist1[0] + " hatte die Rolle " + playerlist1[1] + "."
+        alivelist[playerlist.index(playerlist1[0])] = False
     if text != "":
         
         textlist = list(text)
@@ -626,7 +643,7 @@ def hideresults():
     buttonHideResultonscreen = False
     pygame.display.flip()
 
-def displaypicture(x, y, width, height, image):
+def displaypicture(x, y, image):
     """
     zeigt ein Bild an
     """
@@ -634,9 +651,39 @@ def displaypicture(x, y, width, height, image):
     image_path = os.path.join(current_dir,"..", "assets\\")
     image = pygame.image.load(image_path + image)
     #image = pygame.image.load(image)
-    image = pygame.transform.scale(image,(width, height))
-    screen.blit(image, (x, y))
+    image = pygame.transform.scale(image,(100, 100))
+    screen.blit(image, (x-50, y-50))
     pygame.display.flip()
+
+def calculateimagepositions(playerlist):
+    global imagepositionsx, imagepositionsy
+    imagepositionsx = []
+    imagepositionsy = []
+    amount = len(playerlist)
+    for i in range(amount):
+        angle = 2 * math.pi * i / amount  
+        x = display.current_w // 2 + 275 * math.cos(-angle)  
+        y = display.current_h // 2 + 275 * math.sin(-angle)  
+        imagepositionsx.append(x)
+        imagepositionsy.append(y)
+    return imagepositionsx, imagepositionsy
+
+def displayplayerpictures(playerlist, alivelist):
+    imagepositionsx, imagepositionsy = calculateimagepositions(playerlist)
+    for i in range(len(playerlist)):
+        print(imagepositionsx[i], imagepositionsy[i])
+        if alivelist[i]:
+            displaypicture(imagepositionsx[i],imagepositionsy[i], "Player1.png")
+        else:
+            displaypicture(imagepositionsx[i],imagepositionsy[i], "Player1dead.png")
+        text = playerlist[i]
+        font = pygame.font.SysFont('comicsans', 20)
+        text_surface = font.render(text, False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(imagepositionsx[i], imagepositionsy[i]+70))
+        screen.blit(text_surface, text_rect)
+
+        
+            
 
 def onquit():
     """
