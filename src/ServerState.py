@@ -49,9 +49,9 @@ class ServerGame():
         
         self.__voteStorage = None
         
-        self.__pendingKills : dict[str, str] = dict()
+        self.__pendingKills : set[str] = set()
         """
-        Wörterbuch mit Zuordnung Spieler -> Todesursache
+        Menge der Spieler, welche in der Nacht gestorben sind
         """
     
     
@@ -431,6 +431,13 @@ class ServerGame():
     ## Aktionen, welche auf ein Voting folgen ##
     
     def __killPlayer(self, playerId : str, cause : str):
+        """
+        Tötet einen Spieler, sendet diesem die neuen Spielerdaten und informiert die Spieler über den Tod
+
+        Args:
+            playerId (str): Name des Spielers
+            cause (str): Grund des Todes
+        """
         playerData = self.__playerDataBase[playerId]
         playerData.setisdead(True)
         
@@ -446,7 +453,37 @@ class ServerGame():
         
         self.__broadcastPing(Ping.fromData("eliminationPing", pingData, "server"), [])
     
-     
+    def __killPlayerAtNight(self, playerId : str):
+        """
+        Fügt den Spieler der globalen Menge self.__pendingKills hinzu.
+
+        Args:
+            playerId (str): Name des Spielers
+            cause (str): Grund des Todes
+        """
+        self.__pendingKills.add(playerId)
+    
+    def __healPlayer(self, playerID : str):
+        """
+        Entfernt einen Spieler aus der globalen Menge self.__pendingKills.
+
+        Args:
+            playerID (str): Name des Spielers
+        """
+        self.__pendingKills.remove(playerID)
+    
+    def __couplePlayers(self, secondPlayerID : str):
+        """
+        Verliebt zwei Spieler, der erste befindet sich im VoteStorage, der zweite wird als Argument übergeben
+
+        Args:
+            secondPLayerID (str): zweiter Spieler
+        """
+        firstPlayerID = self.__voteStorage.pop()
+        firstPlayerData = self.__playerDataBase[firstPlayerID]
+        
+        secondPlayerData = self.__playerDataBase[secondPlayerID]
+    
     #def computeNightVoteCycle(playerDatabase, nightCounter):
     #    rolesToPlayers = dict()
     #    print(playerDatabase)
