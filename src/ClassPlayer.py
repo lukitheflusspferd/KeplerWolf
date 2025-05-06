@@ -1,7 +1,7 @@
 from Roles import *
 
 class Player():
-    def __init__(self, name, role = "Villager()", isdead=False, isvictim=False, ismayor=False, isawake=False, playervotesleft=0, votesforplayer=0, currenthp=1):
+    def __init__(self, name, role = "Villager()", isdead=False, isvictim=False, ismayor=False, isawake=False, playervotesleft=0, votesforplayer=0, currenthp=1, coupledWith = ""):
         self.__name = name
         self.__role = eval(role)
         self.__isdead = isdead
@@ -11,12 +11,13 @@ class Player():
         self.__playervotesleft = playervotesleft
         self.__votesforplayer = votesforplayer
         self.__currenthp = currenthp
+        self.__coupledWith = coupledWith
 
     def __repr__(self):
         return (f"Player(name='{self.__name}', role='{repr(self.__role)}', isdead={self.__isdead}, "
                 f"isvictim={self.__isvictim}, ismayor={self.__ismayor}, isawake={self.__isawake}, "
                 f"playervotesleft={self.__playervotesleft}, votesforplayer={self.__votesforplayer}, "
-                f"currenthp={self.__currenthp})")
+                f"currenthp={self.__currenthp}, coupledWith = {repr(self.__coupledWith)})")
     
 
     def setisdead(self, dead: bool):
@@ -58,6 +59,9 @@ class Player():
             Player.setisdead(True)
             Player.getrole().ondeath()
 
+    def setCoupledWith(self, partner : str):
+        self.__coupledWith = partner
+    
     def getname(self):
         return self.__name
 
@@ -84,6 +88,9 @@ class Player():
     
     def getvotesforplayer(self):
         return self.__votesforplayer
+    
+    def getCoupledWith(self) -> str:
+        return self.__coupledWith
     
 '''
 

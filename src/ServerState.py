@@ -196,14 +196,20 @@ class ServerGame():
                 print(self.__mailbox)
                 self.__serverState = "Game"
             case 'VoteAnswerPing':
-                if self.__serverState == "Voting":
+                if self.__serverState in {"Voting", "FullNomination"}:
                     self.__computeThisVotePing(playerID, pingData)
                     if self.__checkForThisVotingsEnd():
                         self.__countThisVotes()
                     if self.__serverState == "FullNomination":
                         print(f"VoteAnswerPing von [{playerID}] übersprungen, da die Nominierung bereits voll ist.")
-                elif self.__serverState == "FullNomination":
-                    print(f"VoteAnswerPing von [{playerID}] übersprungen, da die Nominierung bereits voll ist.")
+                #elif self.__serverState == "FullNomination":
+                #    print(f"VoteAnswerPing von [{playerID}] übersprungen, da die Nominierung bereits voll ist.")
+                #    if self.__checkForThisVotingsEnd():
+                #        print("\n\nhslfkgjbh\n\n")
+                #        self.__countThisVotes()
+                #    else:
+                #        print("\n\noawieruo\n\n")
+                #        print(self.__pendingVotingPlayers)
                 else: print(f"VoteAnswerPing von [{playerID}] übersprungen, da kein Voting stattfindet. (Der aktuelle State ist [{self.__serverState}])")
             case _:
                 print(f"Ping von {playerID} übersprungen da Typ unbekannt: {pingType}")
@@ -294,7 +300,7 @@ class ServerGame():
                 votePing["players"] = possiblePlayers
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), possiblePlayers)
                 
-            case 'mayor' | 'hanging':
+            case 'mayor':
                 self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
                 self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
                 
@@ -304,7 +310,24 @@ class ServerGame():
                     if not player.getisdead():
                         votingPlayers.append(player.getname())
                 
-                self.__countThisVotes = lambda : self.__countVotes(votingPlayers)
+                self.__countThisVotes = lambda : self.__countVotes(votingPlayers, lambda playerName : self.__setMayor(playerName))
+                
+                possiblePlayers = self.__voteStorage
+                
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), votingPlayers)
+                
+            case 'hanging':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+                
+                votingPlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        votingPlayers.append(player.getname())
+                
+                self.__countThisVotes = lambda : self.__countVotes(votingPlayers, lambda playerName : self.__killPlayer(playerName, "hanging"))
                 
                 possiblePlayers = self.__voteStorage
                 
@@ -370,11 +393,12 @@ class ServerGame():
         
         resultList = dict()
         
-        for vote in self.__votings.values():
+        for player, vote in self.__votings.items():
             if vote == "": continue
+            voteValue = 2 if self.__playerDataBase[player].getismayor() else 1
             if not vote in resultList:
-                resultList[vote] = 1
-            else: resultList[vote] += 1
+                resultList[vote] = voteValue
+            else: resultList[vote] += voteValue
         
         highestResult = (None, 0)
         for playerName, voteResult in resultList.items():
@@ -382,8 +406,8 @@ class ServerGame():
                 highestResult = (playerName, voteResult)
         
         # Folgeaktion ausführen
-        if (highestResult != None) and (resultAction != None):
-            resultAction(highestResult)
+        if (highestResult[0] != None) and (resultAction != None):
+            resultAction(highestResult[0])
         
         
         resultPing = {
@@ -480,9 +504,32 @@ class ServerGame():
             secondPLayerID (str): zweiter Spieler
         """
         firstPlayerID = self.__voteStorage.pop()
-        firstPlayerData = self.__playerDataBase[firstPlayerID]
         
-        secondPlayerData = self.__playerDataBase[secondPlayerID]
+        self.__playerDataBase[firstPlayerID].setCoupledWith(secondPlayerID)
+        
+        self.__playerDataBase[secondPlayerID].setCoupledWith(firstPlayerID)
+        
+        self.__mailbox[firstPlayerID].append(Ping.fromData("VoteResultPing", {"names" : [firstPlayerID, secondPlayerID], "type" : "coupled"}, "server"))
+        self.__mailbox[secondPlayerID].append(Ping.fromData("VoteResultPing", {"names" : [firstPlayerID, secondPlayerID], "type" : "coupled"}, "server"))
+        
+    def __revealRoleSilently(self, target : str, askingPlayer : str):
+        """
+        Schickt dem fragenden Spieler (Seher oder Blinzelmädchen) die Rolle des ausgewählten Spielers
+
+        Args:
+            target (str): Spieler, von dem die Rolle erfragt wird
+            askingPlayer (str): fragender Spieler
+        """
+        self.__mailbox[askingPlayer].append(Ping.fromData("RevealRolePing", {"name": target, "role": repr(self.__playerDataBase[target].getrole)}))
+    
+    def __setMayor(self, playerID : str):
+        """
+        Gibt einem Spieler das Attribut Bürgermeister
+
+        Args:
+            playerID (str): Name des Spielers
+        """
+        self.__playerDataBase[playerID].setismayor(True)
     
     #def computeNightVoteCycle(playerDatabase, nightCounter):
     #    rolesToPlayers = dict()
