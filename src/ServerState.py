@@ -467,7 +467,7 @@ class ServerGame():
         
         self.__playerDataBase[playerId] = copy.deepcopy(playerData)
         
-        self.__mailbox[playerId].append(Ping.fromData("stateChangePing", repr(playerData), "server"))
+        self.__mailbox[playerId].append(Ping.fromData("StateChangePing", repr(playerData), "server"))
         
         pingData = {
             "names" : [playerId],
