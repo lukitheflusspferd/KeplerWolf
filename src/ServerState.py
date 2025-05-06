@@ -358,7 +358,7 @@ class ServerGame():
     
     ## Voting auszählen ##
     
-    def __countVotes(self, revealFor : list | str, resultAction : function = None):
+    def __countVotes(self, revealFor : list | str, resultAction = None):
         """
         Zählt die Abstimmung aus und sendet das Ergebnis an die ausgewählten Spieler
 
@@ -430,7 +430,7 @@ class ServerGame():
     
     ## Aktionen, welche auf ein Voting folgen ##
     
-    def __killPlayer(playerId : str, cause : str):
+    def __killPlayer(self, playerId : str, cause : str):
         playerData = self.__playerDataBase[playerId]
         playerData.setisdead(True)
         
@@ -439,12 +439,12 @@ class ServerGame():
         self.__mailbox[playerId].append(Ping.fromData("stateChangePing", repr(playerData), "server"))
         
         pingData = {
-            names : [playerId],
-            type : cause 
+            "names" : [playerId],
+            "type" : cause 
         }
         
         
-        self.__broadcastPing(Ping.fromData("eliminationPing", ping, "server"), [])
+        self.__broadcastPing(Ping.fromData("eliminationPing", pingData, "server"), [])
     
      
     #def computeNightVoteCycle(playerDatabase, nightCounter):
