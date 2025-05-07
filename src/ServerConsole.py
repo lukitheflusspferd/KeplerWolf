@@ -43,6 +43,16 @@ def computeCommand(cmd):
             return Ping.fromData("ConsoleCommandPing", "voteTrigger7", "console")  
         case "trigger vote 8":
             return Ping.fromData("ConsoleCommandPing", "voteTrigger8", "console")   
+        case "trigger vote 9":
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger9", "console")
+        case "trigger vote 10":
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger10", "console")   
+        case "trigger vote 11":
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger11", "console")
+        case "trigger vote 12":
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger12", "console")  
+        case "trigger vote 13":
+            return Ping.fromData("ConsoleCommandPing", "voteTrigger13", "console")   
         case _:
             print("Fehler: Unbekannter Befehl")
             return Ping.fromData("EmptyPing", "", "console")

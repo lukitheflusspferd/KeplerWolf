@@ -127,7 +127,22 @@ class ServerGame():
                 
             case "voteTrigger8":
                 self.__initVoting("see_seer")
-                    
+                
+            case "voteTrigger9":
+                self.__initVoting("witch_heal")
+                
+            case "voteTrigger10":
+                self.__initVoting("witch_kill")
+            
+            case "voteTrigger11":
+                self.__initVoting("alpha")
+            
+            case "voteTrigger12":
+                self.__initVoting("love1")
+            
+            case "voteTrigger13":
+                self.__initVoting("love2")
+                
         return EMPTYPING
     
     def __computePlayernamePing(self, ip: str, name: str) -> dict:
@@ -401,7 +416,7 @@ class ServerGame():
                 self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
                 self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
 
-                huntingPlayer = self.__rolesToPlayernames["hunter"]
+                huntingPlayer = self.__rolesToPlayernames["hunter"][0]
 
                 self.__countThisVotes = lambda : self.__countVotes([], lambda playerName : self.__killPlayer(playerName, "hunter"))
 
