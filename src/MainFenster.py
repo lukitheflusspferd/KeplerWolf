@@ -23,7 +23,6 @@ class windowtypes(Enum):
     win = 4
     lose = 5
 
-# Initialisierung des Spiels
 pygame.init() 
 global answer 
 global ownName
@@ -32,6 +31,8 @@ player = None
 imagepositionsx= []
 imagepositionsy= []
 playerData = []
+winnergroup = None
+
 
 playerlist = []
 alivelist = []
@@ -59,12 +60,12 @@ witchvotephase = 1
 ishosting = False
 votetype = ""
 
-# Zeichnen des Hintergrundes
+# Definieren des Eingabefeldes
 background_rect = pygame.Rect(195, 195, 110, 42)
 input_rect = pygame.Rect(200, 200, 140, 32) 
 color_active = pygame.Color('lightskyblue3')
 
-# Farbe der Inputbox setzen
+# Definieren der Farbe des Eingabefeldes
 color_passive = pygame.Color('chartreuse4') 
 color = color_passive
 istesting = False
@@ -94,17 +95,23 @@ def onstatechange(state):
         
         ishosting = False
         while undecided:
+            font = pygame.font.SysFont('comicsans', 80)
+            text_surface = font.render("KeplerWolf", False, (0,0,0))
+            text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 6))
+            screen.blit(text_surface, text_rect)
             font = pygame.font.SysFont('comicsans', 30)
-            text_surface = font.render("Hosten oder Joinen?", False, (0,0,0))
+            text_surface = font.render("Willst du einem Spiel beitreten oder selbst eins hosten?", False, (0,0,0))
             text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 2 - 80))
             screen.blit(text_surface, text_rect)
             pygame.display.flip()
             ButtonHost = Button((0, 255, 0), display.current_w // 2 + 25, display.current_h // 2 + 45, 110, 42, "Hosten")
             ButtonHost.draw(screen,"comicsans", outline=(0, 0, 0))
-            ButtonJoin = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 45, 110, 42, "Joinen")
+            ButtonJoin = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 45, 110, 42, "Beitreten", 23)
             ButtonJoin.draw(screen,"comicsans", outline=(0, 0, 0))
-            ButtonTest = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 100, 110, 42, "Test")
+            ButtonTest = Button((0, 255, 0), display.current_w // 2 - 135, display.current_h // 2 + 120, 110, 42, "Test")
             ButtonTest.draw(screen,"comicsans", outline=(0, 0, 0))
+            ButtonTestWin = Button((0,255,0), display.current_w // 2 + 25, display.current_h // 2 + 120, 110, 42, "TestWin", 26)
+            ButtonTestWin.draw(screen,"comicsans", outline=(0, 0, 0))
             pygame.display.flip()
     
             for event in pygame.event.get():
@@ -129,8 +136,14 @@ def onstatechange(state):
                         undecided = False
                         filllogintext()
                         setstate(windowtypes.game)
+                    elif ButtonTestWin.isOver(event.pos):
+                        istesting = True
+                        filllogintext()
+                        undecided = False
+                        setstate(windowtypes.win)
         if not istesting:                
-            drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-100 , 500, 300)
+
+            drawover_rect = pygame.Rect(display.current_w // 2 - 500, display.current_h // 2-100 , 1000, 300)
             pygame.draw.rect(screen, (255,255,255), drawover_rect)
             global background_rect 
             background_rect = pygame.Rect(display.current_w // 2 - 95, display.current_h // 2 + 45, 190, 42)
@@ -209,7 +222,37 @@ def onstatechange(state):
         else:
             displayrole()
             displayplayerpictures(playerlist, alivelist)
-        
+    if state == windowtypes.win or windowstate == windowtypes.lose:
+        screen.fill((255,255,255))
+        font = pygame.font.SysFont('comicsans', 40)
+        if state == windowtypes.lose:
+            text = "Du hast verloren!"
+        else:
+            text = "Du hast gewonnen!"
+        text_surface = font.render(text, False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w // 2, display.current_h // 3))
+        screen.blit(text_surface, text_rect)
+        if istesting:
+            winnergroup = grouptypes.werewolf
+        if winnergroup == grouptypes.alpha:
+            text = "Der Alpha-Werwolf hat gewonnen"
+        elif winnergroup == grouptypes.werewolf:
+            text = "Die Werwölfe haben gewonnen"
+        #elif winnergroup == grouptypes.fluter: ist nicht implementiert als rolle
+        elif winnergroup == grouptypes.villager:
+            text = "Das Dorf hat gewonnen"
+        elif winnergroup == grouptypes.lovers:
+            text = "Die verliebten haben gewonnen"        
+        font = pygame.font.SysFont("comicsans", 20)
+        text_surface = font.render(text, False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w//2, display.current_h // 3 + 60))
+        screen.blit(text_surface, text_rect)
+        pygame.display.flip()
+        if istesting:
+            displayallroles(playerlist)
+        else:
+            displayallroles(endplayerlist)
+
 global ipconfirmed
 ipconfirmed = False            
 
@@ -232,8 +275,8 @@ def filllogintext():
     """
     übermalt die Login anzeigen um Platz für neuen Text zu machen
     """
-    fill_rect1 = pygame.Rect(display.current_w // 2 - 550, display.current_h // 2-30 , 1100, 60)
-    fill_rect2 = pygame.Rect(display.current_w // 2 - 550, display.current_h // 2 + 100, 1100, 120)
+    fill_rect1 = pygame.Rect(display.current_w // 2 - 1100, 0 , 2200, display.current_h // 2+90)
+    fill_rect2 = pygame.Rect(display.current_w // 2 - 1100, display.current_h // 2 + 100, 2200, 120)
     pygame.draw.rect(screen, (255,255,255), fill_rect1)
     pygame.draw.rect(screen, (255,255,255), fill_rect2)
 
@@ -705,7 +748,26 @@ def displayplayerpictures(playerlist, alivelist):
         text_rect = text_surface.get_rect(center=(imagepositionsx[i], imagepositionsy[i]+70))
         screen.blit(text_surface, text_rect)
 
-        
+def displayallroles(endplayerlist):
+    global istesting
+    
+    if istesting:
+        endplayerlist = ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10"]
+        endrolelist = ["Werwolf","Werwolf","Werwolf","Armor","Blinzelmädchen","Dorfbewohner","Alphawolf","Jäger","Dorfbewohner", "Hexe"]
+    for i in range(len(endplayerlist)):
+        if istesting:
+            text = endplayerlist[i] +" Rolle:"+ endrolelist[i]
+        else:
+            text = endplayerlist[i]["name"] +" Rolle:"+ endplayerlist[i]["role"]
+        font = pygame.font.SysFont('comicsans', 20)
+        text_surface = font.render(text, False, (0,0,0))
+        text_rect = text_surface.get_rect(center=(display.current_w//2, display.current_h//2+25 * i))
+        screen.blit(text_surface, text_rect)
+    text = "Spieler:"
+    text_surface = font.render(text, False, (0,0,0))
+    text_rect = text_surface.get_rect(center=(display.current_w//2, display.current_h//2-25))
+    screen.blit(text_surface, text_rect)
+    pygame.display.flip()
             
 
 def onquit():
@@ -777,13 +839,15 @@ while True:
                 triggervote(data)
             elif data["dummy"] == "True":
                 triggerfakevote()
-            pass
+            
         if pingtype == "VoteResultPing":
             displayresults(data, "Vote")
         if pingtype == "GameEndPing":
-            if data["result"] == "win":
+            winnergroup = data["group"]
+            endplayerlist = data["players"]
+            if winnergroup == endplayerlist[playerData.getname()["won"]]:
                 setstate(windowtypes.win)
-            elif data["result"] == "lose":
+            else:
                 setstate(windowtypes.lose)
         if pingtype == "EliminationPing":
             displayresults(data, "Elimination")
@@ -794,7 +858,7 @@ while True:
         sleep(1)
     for event in pygame.event.get(): 
   
-      # beendet das Spiel wenn es QUIT erhält
+      # Beendet vor dem Schließen des Fensters die Programme und ggf. die Verbindung mit dem Server 
         if event.type == pygame.QUIT: 
             if not istesting:
                 onquit()
@@ -834,13 +898,12 @@ while True:
 
         if event.type == pygame.KEYDOWN: 
             if active:
-                # prüft ob die Backspace-Taste gedrückt wird
-                if event.key == pygame.K_BACKSPACE: 
+                # prüft ob die Backspace-Taste gedrückt wird 
+                if event.key == pygame.K_BACKSPACE:  
                     user_text = user_text[:-1] 
-
                 elif event.key != pygame.K_RETURN: 
                     user_text += event.unicode
-                # gibt usertext aus wenn die Enter-Taste gedrückt ist            
+                # gibt usertext aus wenn die Enter-Taste gedrückt wird               
                 elif event.key == pygame.K_RETURN:
                     print(user_text)
                     if windowstate == windowtypes.login:
@@ -893,7 +956,7 @@ while True:
                                 user_text = ""
                         else:
                             displaywronganswer()
- 
+                    
                 pygame.draw.rect(screen, (0,0,0), background_rect)
                 pygame.draw.rect(screen, color, input_rect) 
                 
@@ -901,9 +964,10 @@ while True:
                 
                 screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
                 
-                # legt Breite des Textfelds so fest, dass der Text nicht über die Texteingabe des Benutzers hinausgehen kann
-                input_rect.w = max(180, text_surface.get_width()+10, input_rect.w) 
-                if windowstate == windowtypes.lobby:
+                # passt die Breite des Textfeldes an, damit der Text nicht über das Eingabefeld hinausgehen kann
+                input_rect.w = max(180, text_surface.get_width()+28, input_rect.w) 
+                background_rect.w = max(190, text_surface.get_width()+38, background_rect.w)
+                if windowstate == windowtypes.lobby or windowstate == windowtypes.game:
                     drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
                     pygame.draw.rect(screen, (255,255,255), drawover_rect)
                         
