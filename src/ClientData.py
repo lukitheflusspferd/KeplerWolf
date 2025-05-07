@@ -17,11 +17,15 @@ def setMailbox(newMailbox):
     mailbox = newMailbox
 
 def computePing(message: dict, ownName):
+    """
+    verarbeitet die Pings die vom Server erhalten werden
+    """
     global mailbox
     
     messageType, messageData, _ = Ping.toData(message)
     # print("PingTyp:", messageType, "PingData:", messageData)
     
+    # prüft Type des Pings
     if messageType == "InitPing":
         global clientPlayerData
         clientPlayerData = messageData

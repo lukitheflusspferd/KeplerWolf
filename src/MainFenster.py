@@ -15,6 +15,15 @@ import json
 from time import sleep
 from ClientData import computePing, validName, getMailbox, setMailbox
 from Ping import fromData, toData
+
+class windowtypes(Enum):
+    login = 1
+    lobby = 2
+    game = 3
+    win = 4
+    lose = 5
+
+# Initialisierung des Spiels
 pygame.init() 
 global answer 
 global ownName
@@ -23,13 +32,6 @@ player = None
 imagepositionsx= []
 imagepositionsy= []
 playerData = []
-
-class windowtypes(Enum):
-    login = 1
-    lobby = 2
-    game = 3
-    win = 4
-    lose = 5
 
 playerlist = []
 alivelist = []
@@ -57,12 +59,12 @@ witchvotephase = 1
 ishosting = False
 votetype = ""
 
-# create rectangle 
+# Zeichnen des Hintergrundes
 background_rect = pygame.Rect(195, 195, 110, 42)
 input_rect = pygame.Rect(200, 200, 140, 32) 
 color_active = pygame.Color('lightskyblue3')
 
-# color of input box. 
+# Farbe der Inputbox setzen
 color_passive = pygame.Color('chartreuse4') 
 color = color_passive
 istesting = False
@@ -792,7 +794,7 @@ while True:
         sleep(1)
     for event in pygame.event.get(): 
   
-      # if user types QUIT then the screen will close 
+      # beendet das Spiel wenn es QUIT erhält
         if event.type == pygame.QUIT: 
             if not istesting:
                 onquit()
@@ -826,21 +828,19 @@ while True:
                 
                 text_surface = base_font.render(user_text, True, (255, 255, 255)) 
                 
-                # render at position stated in arguments 
                 screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
                 pygame.display.flip()
 
 
         if event.type == pygame.KEYDOWN: 
             if active:
-                # Check for backspace 
+                # prüft ob die Backspace-Taste gedrückt wird
                 if event.key == pygame.K_BACKSPACE: 
-                    # get text input from 0 to -1 i.e. end. 
                     user_text = user_text[:-1] 
-                # Unicode standard is used for string formation 
+
                 elif event.key != pygame.K_RETURN: 
                     user_text += event.unicode
-                # print usertext when enter is pressed                
+                # gibt usertext aus wenn die Enter-Taste gedrückt ist            
                 elif event.key == pygame.K_RETURN:
                     print(user_text)
                     if windowstate == windowtypes.login:
@@ -893,18 +893,15 @@ while True:
                                 user_text = ""
                         else:
                             displaywronganswer()
-                    
-                # draw rectangle and argument passed which should be on screen
  
                 pygame.draw.rect(screen, (0,0,0), background_rect)
                 pygame.draw.rect(screen, color, input_rect) 
                 
                 text_surface = base_font.render(user_text, True, (255, 255, 255)) 
                 
-                # render at position stated in arguments 
                 screen.blit(text_surface, (input_rect.x+5, input_rect.y+5)) 
                 
-                # set width of textfield so that text cannot get outside of user's text input 
+                # legt Breite des Textfelds so fest, dass der Text nicht über die Texteingabe des Benutzers hinausgehen kann
                 input_rect.w = max(180, text_surface.get_width()+10, input_rect.w) 
                 if windowstate == windowtypes.lobby:
                     drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
@@ -912,6 +909,5 @@ while True:
                         
                 
                 pygame.display.flip()
-                # clock.tick(60) means that for every second at most 
-                # 60 frames should be passed. 
+                # Begrenzung auf 60 FPS
                 clock.tick(60) 

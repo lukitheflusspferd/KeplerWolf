@@ -1,6 +1,6 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.6.1 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" modified="2025-05-07T09:42:39.453Z" etag="FVY_M3boptup7bP0Afip" version="24.6.1" type="device">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:138.0) Gecko/20100101 Firefox/138.0" version="26.3.0">
   <diagram name="Seite-1" id="XNDbbiLUkPlffReXUP9_">
-    <mxGraphModel dx="2049" dy="1206" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2037" dy="1113" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -19,7 +19,7 @@
         <mxCell id="DvSm5--Kq0vd1wlBUZNr-5" value="Player" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="360" y="150" width="320" height="550" as="geometry" />
         </mxCell>
-        <mxCell id="DvSm5--Kq0vd1wlBUZNr-6" value="&lt;div&gt;- name: Zeichenkette&lt;/div&gt;&lt;div&gt;- role: Zeichenkette&lt;/div&gt;&lt;div&gt;- isdead: Wahrheitswert&lt;/div&gt;&lt;div&gt; - isvictim: Wahrheitswert&lt;/div&gt;&lt;div&gt;- ismayor: Wahrheitswert&lt;/div&gt;&lt;div&gt;- isawake: Wahrheitswert&lt;/div&gt;&lt;div&gt; - playervotesleft: ganze Zahl&lt;/div&gt;&lt;div&gt;-  votesforplayer: ganze Zahl&lt;/div&gt;&lt;div&gt;- currenthp: ganze Zahl&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="DvSm5--Kq0vd1wlBUZNr-5" vertex="1">
+        <mxCell id="DvSm5--Kq0vd1wlBUZNr-6" value="&lt;div&gt;- name: Zeichenkette&lt;/div&gt;&lt;div&gt;- role: Role&lt;/div&gt;&lt;div&gt;- isdead: Wahrheitswert&lt;/div&gt;&lt;div&gt; - isvictim: Wahrheitswert&lt;/div&gt;&lt;div&gt;- ismayor: Wahrheitswert&lt;/div&gt;&lt;div&gt;- isawake: Wahrheitswert&lt;/div&gt;&lt;div&gt; - playervotesleft: ganze Zahl&lt;/div&gt;&lt;div&gt;-  votesforplayer: ganze Zahl&lt;/div&gt;&lt;div&gt;- currenthp: ganze Zahl&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="DvSm5--Kq0vd1wlBUZNr-5" vertex="1">
           <mxGeometry y="26" width="320" height="144" as="geometry" />
         </mxCell>
         <mxCell id="DvSm5--Kq0vd1wlBUZNr-7" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="DvSm5--Kq0vd1wlBUZNr-5" vertex="1">
@@ -245,10 +245,10 @@
           <mxGeometry y="258" width="290" height="272" as="geometry" />
         </mxCell>
         <mxCell id="FHEJiflIrdCCk_o0HsnV-7" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-          <mxGeometry x="310" y="260" width="40" height="30" as="geometry" />
+          <mxGeometry x="327" y="157" width="40" height="30" as="geometry" />
         </mxCell>
         <mxCell id="FHEJiflIrdCCk_o0HsnV-8" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-          <mxGeometry x="326" y="136" width="30" height="30" as="geometry" />
+          <mxGeometry x="308" y="260" width="30" height="30" as="geometry" />
         </mxCell>
         <mxCell id="FHEJiflIrdCCk_o0HsnV-12" value="" style="endArrow=open;html=1;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=bottom;rounded=0;" parent="1" edge="1">
           <mxGeometry x="-1" y="3" relative="1" as="geometry">
