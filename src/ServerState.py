@@ -111,7 +111,7 @@ class ServerGame():
                 self.__initVoting("hanging")
                 
             case "voteTrigger3":
-                self.__initVoting("werewolf")
+                self.__initVoting("hunter")
                     
         return EMPTYPING
     
@@ -341,8 +341,10 @@ class ServerGame():
             case 'see_seer':
                 votePing["type"] = 'see'
 
-                seeingPlayer = self.__rolesToPlayernames["seer"]
+                seeingPlayer = self.__rolesToPlayernames["seer"][0]
                 
+                print(seeingPlayer, self.__rolesToPlayernames["seer"])
+
                 self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
                 self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
                 
@@ -363,7 +365,9 @@ class ServerGame():
             case 'see_girl':
                 votePing["type"] = 'see'
 
-                seeingPlayer = self.__rolesToPlayernames["littlegirl"]
+                seeingPlayer = self.__rolesToPlayernames["littlegirl"][0]
+
+                print(seeingPlayer, self.__rolesToPlayernames["littlegirl"])
                 
                 self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
                 self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
@@ -381,6 +385,45 @@ class ServerGame():
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), seeingPlayer)
                 votePing["dummy"] = "True"
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], seeingPlayer)
+
+            case 'hunter':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+
+                huntingPlayer = self.__rolesToPlayernames["hunter"]
+
+                self.__countThisVotes = lambda : self.__countVotes([], lambda playerName : self.__killPlayer(playerName, "hunter"))
+
+                possiblePlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        possiblePlayers.append(player.getname())
+
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), huntingPlayer)
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], huntingPlayer)
+            
+            case 'alpha':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+                
+                possiblePlayers = []
+                votingPlayers = []
+                
+                for k, v in self.__rolesToPlayernames.items():
+                    if k  == "alpha":
+                        votingPlayers.extend(v)
+                    else:
+                        possiblePlayers.extend(v)
+                
+                self.__countThisVotes = lambda : self.__countVotes(votingPlayers, lambda playerName : self.__killPlayerAtNight(playerName))
+                
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), votingPlayers)
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], votingPlayers)
 
             case _:
                 raise Exception(f"Unbekannter Vote-Typ: {voteType}")
@@ -519,11 +562,12 @@ class ServerGame():
         
         pingData = {
             "names" : [playerId],
-            "type" : cause 
+            "type" : cause,
+            "role" : repr(playerData.getrole())
         }
         
         
-        self.__broadcastPing(Ping.fromData("eliminationPing", pingData, "server"), [])
+        self.__broadcastPing(Ping.fromData("EliminationPing", pingData, "server"), [])
     
     def __killPlayerAtNight(self, playerId : str):
         """
@@ -568,6 +612,7 @@ class ServerGame():
             target (str): Spieler, von dem die Rolle erfragt wird
             askingPlayer (str): fragender Spieler
         """
+        print(askingPlayer)
         self.__mailbox[askingPlayer].append(Ping.fromData("RevealRolePing", {"name": target, "role": repr(self.__playerDataBase[target].getrole)}))
     
     def __setMayor(self, playerID : str):
