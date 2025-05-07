@@ -14,7 +14,7 @@ EMPTYPING = Ping.fromData("EmptyPing", "", "server")
 
 class ServerGame():
     def __init__(self):
-        self.__playerNamesPreGame = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
+        self.__playerNamesPreGame = # ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
         self.__consoleIP = None
         self.__mailbox = dict()
         
@@ -105,13 +105,28 @@ class ServerGame():
                 return Ping.fromData("ConsoleGameInit", self.__playerNamesPreGame, "server")
             
             case "voteTrigger":
-                self.__initVoting("nominate_hanging")
+                self.__initVoting("nominate_mayor")
                 
             case "voteTrigger2":
-                self.__initVoting("see_seer")
+                self.__initVoting("mayor")
                 
             case "voteTrigger3":
+                self.__initVoting("werewolf")
+                
+            case "voteTrigger4":
+                self.__initVoting("nominate_hanging")
+                
+            case "voteTrigger5":
+                self.__initVoting("hanging")
+                
+            case "voteTrigger6":
                 self.__initVoting("hunter")
+                
+            case "voteTrigger7":
+                self.__initVoting("see_girl")
+                
+            case "voteTrigger8":
+                self.__initVoting("see_seer")
                     
         return EMPTYPING
     
