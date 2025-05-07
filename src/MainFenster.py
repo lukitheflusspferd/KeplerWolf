@@ -32,14 +32,15 @@ imagepositionsx= []
 imagepositionsy= []
 playerData = []
 winnergroup = None
+isdead = False
 
 
 playerlist = []
 alivelist = []
 testplayer = Player("Test")
-testplayerlist = ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10"]
+testplayerlist = ["Test","p2","p3","p4","p5","p6","p7","p8","p9","p10"]
 testalivelist = [True, True, True, True, True, True, True, True, True, False]
-testvoteoptionlist = ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10", True, False]
+testvoteoptionlist = ["Test","p2","p3","p4","p5","p6","p7","p8","p9","p10", True, False]
 
 global inputonscreen
 clock = pygame.time.Clock() 
@@ -130,9 +131,11 @@ def onstatechange(state):
                         # Hier Code für Joinen einfügen
                         undecided = False
                     elif ButtonTest.isOver(event.pos):
-                        global playerData, testplayer, istesting
+                        global playerData, testplayer, istesting, playerlist, testplayerlist, alivelist, testalivelist
                         istesting = True
+                        playerlist = testplayerlist
                         playerData = testplayer
+                        alivelist = testalivelist
                         undecided = False
                         filllogintext()
                         setstate(windowtypes.game)
@@ -219,6 +222,16 @@ def onstatechange(state):
             displayresults("test", "Vote")     #NUR ZUM   
             displayplayerpictures(testplayerlist, testalivelist)
             triggerfakevote() #TESTEN
+            ButtonDie = Button((0, 255, 0), display.current_w // 2-55, display.current_h // 2 , 110, 42, "Test Die")
+            ButtonDie.draw(screen,"comicsans", outline=(0,0,0))
+            pygame.display.flip()
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        sys.exit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if ButtonDie.isOver(event.pos):
+                            ondeath()
         else:
             displayrole()
             displayplayerpictures(playerlist, alivelist)
@@ -473,10 +486,11 @@ def statechange(data):
     """
     verändert die Spielerdaten, leitet Todesnachricht ein
     """
+    global isdead
     data = eval(data)
     global playerData
     if not playerData.getisdead() and data.getisdead():
-        pass #TODESSCREEN EINFÜGEN SO EINE MESSAGE OBEN DAS MAN TOT IST
+        isdead = True
     playerData = data
 
 def triggervote(data):
@@ -720,6 +734,9 @@ def displaypicture(x, y, image):
     pygame.display.flip()
 
 def calculateimagepositions(playerlist):
+    """
+    Berechnet die Positionen der Bilder und Namen der Spieler anhand von der Menge und Vektoren
+    """
     global imagepositionsx, imagepositionsy
     imagepositionsx = []
     imagepositionsy = []
@@ -733,6 +750,9 @@ def calculateimagepositions(playerlist):
     return imagepositionsx, imagepositionsy
 
 def displayplayerpictures(playerlist, alivelist):
+    """
+    Leitet das Zeichnen der Spielerbilder ein, schreibt darunter die Namen
+    """
     imagepositionsx, imagepositionsy = calculateimagepositions(playerlist)
     for i in range(len(playerlist)):
         print(imagepositionsx[i], imagepositionsy[i])
@@ -749,10 +769,13 @@ def displayplayerpictures(playerlist, alivelist):
         screen.blit(text_surface, text_rect)
 
 def displayallroles(endplayerlist):
+    """
+    Zeigt die Rollen der Spieler auf dem End-screen an
+    """
     global istesting
     
     if istesting:
-        endplayerlist = ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10"]
+        endplayerlist = ["Test","p2","p3","p4","p5","p6","p7","p8","p9","p10"]
         endrolelist = ["Werwolf","Werwolf","Werwolf","Armor","Blinzelmädchen","Dorfbewohner","Alphawolf","Jäger","Dorfbewohner", "Hexe"]
     for i in range(len(endplayerlist)):
         if istesting:
@@ -768,7 +791,24 @@ def displayallroles(endplayerlist):
     text_rect = text_surface.get_rect(center=(display.current_w//2, display.current_h//2-25))
     screen.blit(text_surface, text_rect)
     pygame.display.flip()
-            
+
+def ondeath():
+    """
+    Zeigt dem Spieler an, dass er gestorben ist
+    """
+    global playerlist, alivelist
+    alivelist[playerlist.index(playerData.getname())] = False
+    displayplayerpictures(playerlist, alivelist)
+    font = pygame.font.SysFont("comicsans", 40)
+    text = "Du bist gestorben!"
+    text_surface = font.render(text, False, (255,0,0))
+    text_rect = text_surface.get_rect(center=(display.current_w//2, display.current_h//8-25))
+    screen.blit(text_surface, text_rect)
+    drawover_rect = pygame.Rect(display.current_w//6*5+10,0, display.current_w//6-10, display.current_h)
+    pygame.draw.rect(screen, (255,255,255), drawover_rect)
+    drawover_rect = pygame.Rect(0,0, display.current_w//6-10, display.current_h)
+    pygame.draw.rect(screen, (255,255,255), drawover_rect)
+    pygame.display.flip()        
 
 def onquit():
     """
@@ -824,24 +864,26 @@ while True:
         print("")
         answer = json.loads(b_answer.decode("utf-8"))
         # computePing(json.loads(b_answer.decode("utf-8")), ownName)
-        if windowstate == windowtypes.lobby:
-            pingtype, pingData, _ = toData(answer)
-            if pingtype == "NewLobbyPing":
-                updatePlayerList(pingData)
         pingtype, data, _ = toData(answer)
+        if windowstate == windowtypes.lobby:    
+            if pingtype == "NewLobbyPing":
+                updatePlayerList(data)
         if pingtype == "GameStartPing":
             playerData = eval(data["data"])
             setstate(windowtypes.game)
         if pingtype == "StateChangePing":
             statechange(data)
-        if pingtype == "VotePing":
-            if data["dummy"] == "False":
-                triggervote(data)
-            elif data["dummy"] == "True":
-                triggerfakevote()
+        if not isdead:
+            if pingtype == "VotePing":
+                if data["dummy"] == "False":
+                    triggervote(data)
+                elif data["dummy"] == "True":
+                    triggerfakevote()
             
-        if pingtype == "VoteResultPing":
-            displayresults(data, "Vote")
+            if pingtype == "VoteResultPing":
+                displayresults(data, "Vote")
+            if pingtype == "EliminationPing":
+                displayresults(data, "Elimination")
         if pingtype == "GameEndPing":
             winnergroup = data["group"]
             endplayerlist = data["players"]
@@ -849,8 +891,7 @@ while True:
                 setstate(windowtypes.win)
             else:
                 setstate(windowtypes.lose)
-        if pingtype == "EliminationPing":
-            displayresults(data, "Elimination")
+        
         if pingtype == "RevealRolePing":
             displayresults(data, "See")
 
