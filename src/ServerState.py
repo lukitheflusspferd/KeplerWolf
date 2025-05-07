@@ -14,7 +14,7 @@ EMPTYPING = Ping.fromData("EmptyPing", "", "server")
 
 class ServerGame():
     def __init__(self):
-        self.__playerNamesPreGame = []#["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
+        self.__playerNamesPreGame = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
         self.__consoleIP = None
         self.__mailbox = dict()
         
@@ -108,7 +108,7 @@ class ServerGame():
                 self.__initVoting("nominate_hanging")
                 
             case "voteTrigger2":
-                self.__initVoting("hanging")
+                self.__initVoting("see_seer")
                 
             case "voteTrigger3":
                 self.__initVoting("hunter")
@@ -343,8 +343,6 @@ class ServerGame():
 
                 seeingPlayer = self.__rolesToPlayernames["seer"][0]
                 
-                print(seeingPlayer, self.__rolesToPlayernames["seer"])
-
                 self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
                 self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
                 
@@ -358,17 +356,15 @@ class ServerGame():
                 
                 votePing["players"] = possiblePlayers
                 
-                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), seeingPlayer)
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [seeingPlayer])
                 votePing["dummy"] = "True"
-                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], seeingPlayer)
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], [seeingPlayer])
                 
             case 'see_girl':
                 votePing["type"] = 'see'
 
                 seeingPlayer = self.__rolesToPlayernames["littlegirl"][0]
 
-                print(seeingPlayer, self.__rolesToPlayernames["littlegirl"])
-                
                 self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
                 self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
                 
@@ -401,9 +397,9 @@ class ServerGame():
                         possiblePlayers.append(player.getname())
 
                 votePing["players"] = possiblePlayers
-                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), huntingPlayer)
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [huntingPlayer])
                 votePing["dummy"] = "True"
-                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], huntingPlayer)
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], [huntingPlayer])
             
             case 'alpha':
                 self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
