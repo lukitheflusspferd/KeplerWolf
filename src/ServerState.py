@@ -14,7 +14,7 @@ EMPTYPING = Ping.fromData("EmptyPing", "", "server")
 
 class ServerGame():
     def __init__(self):
-        self.__playerNamesPreGame = # ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
+        self.__playerNamesPreGame = [] # ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"]
         self.__consoleIP = None
         self.__mailbox = dict()
         
@@ -436,6 +436,79 @@ class ServerGame():
                 votePing["dummy"] = "True"
                 self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], votingPlayers)
 
+            case 'witch_heal':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+
+                witchPlayer = self.__rolesToPlayernames["witch"][0]
+
+                self.__countThisVotes = lambda : self.__countVotes([], lambda playerName : self.__healPlayer(playerName))
+
+                possiblePlayers = list(self.__pendingKills)
+
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [witchPlayer])
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], [witchPlayer])
+                
+            case 'witch_kill':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+
+                witchPlayer = self.__rolesToPlayernames["witch"][0]
+
+                self.__countThisVotes = lambda : self.__countVotes([], lambda playerName : self.__killPlayerAtNight(playerName))
+
+                possiblePlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        possiblePlayers.append(player.getname())
+
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [witchPlayer])
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], [witchPlayer])
+            
+            case 'love1':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+
+                armorPlayer = self.__rolesToPlayernames["armor"][0]
+
+                self.__countThisVotes = lambda : self.__countVotes([], lambda playerName : self.__saveFirstLovingPlayer(playerName))
+
+                possiblePlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        possiblePlayers.append(player.getname())
+
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [armorPlayer])
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], [armorPlayer])
+            
+            case 'love2':
+                self.__computeThisVotePing = lambda playerName, voting : self.__computeVotePing(playerName, voting)
+                self.__checkForThisVotingsEnd = self.__checkForVotingsEnd
+
+                armorPlayer = self.__rolesToPlayernames["armor"][0]
+
+                self.__countThisVotes = lambda : self.__countVotes([], lambda playerName : self.__couplePlayers(playerName))
+
+                possiblePlayers = []
+                
+                for player in self.__playerDataBase.values():
+                    if not player.getisdead():
+                        if not player in self.__voteStorage:
+                            possiblePlayers.append(player.getname())
+
+                votePing["players"] = possiblePlayers
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [armorPlayer])
+                votePing["dummy"] = "True"
+                self.__broadcastPing(Ping.fromData("VotePing", votePing, "server"), [], [armorPlayer])
+            
             case _:
                 raise Exception(f"Unbekannter Vote-Typ: {voteType}")
                 
@@ -598,6 +671,15 @@ class ServerGame():
             playerID (str): Name des Spielers
         """
         self.__pendingKills.remove(playerID)
+    
+    def __saveFirstLovingPlayer(self, playerID : str):
+        """
+        Speichert den ersten Spieler zum Verlieben zwischen
+
+        Args:
+            playerID (str): Spielername
+        """
+        self.__voteStorage = [playerID]
     
     def __couplePlayers(self, secondPlayerID : str):
         """
