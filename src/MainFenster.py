@@ -491,6 +491,7 @@ def statechange(data):
     global playerData
     if not playerData.getisdead() and data.getisdead():
         isdead = True
+        ondeath()
     playerData = data
 
 def triggervote(data):
@@ -661,7 +662,7 @@ def displayresults(data, resulttype):
         elif votetype == "nominate_hanging":
             text = "Diese Spieler wurden zum erhängen nominiert:"
             for i in range(amount): 
-                if i != amount:
+                if i != amount-1:
                     text += playerlist1[i-1] +", "
                 else: 
                     text += playerlist[i-1] + "."
@@ -796,7 +797,8 @@ def ondeath():
     """
     Zeigt dem Spieler an, dass er gestorben ist
     """
-    global playerlist, alivelist
+    global playerlist, alivelist, inputonscreen
+    inputonscreen = False
     alivelist[playerlist.index(playerData.getname())] = False
     displayplayerpictures(playerlist, alivelist)
     font = pygame.font.SysFont("comicsans", 40)
@@ -1008,10 +1010,10 @@ while True:
                 # passt die Breite des Textfeldes an, damit der Text nicht über das Eingabefeld hinausgehen kann
                 input_rect.w = max(180, text_surface.get_width()+28, input_rect.w) 
                 background_rect.w = max(190, text_surface.get_width()+38, background_rect.w)
-                if windowstate == windowtypes.lobby or windowstate == windowtypes.game:
+                if windowstate == windowtypes.lobby:
                     drawover_rect = pygame.Rect(display.current_w // 2 - 250, display.current_h // 2-400 , 500, 900)
                     pygame.draw.rect(screen, (255,255,255), drawover_rect)
-                        
+                    pass
                 
                 pygame.display.flip()
                 # Begrenzung auf 60 FPS
